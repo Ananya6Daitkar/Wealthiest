@@ -2,7 +2,7 @@
 
 **Review financial evidence before changing the ledger.**
 
-A working local WealthNest.AI Track C prototype for English digital fixed-deposit documents. Upload PDF/TXT evidence, inspect extracted fields, resolve a missing reference, preview the represented principal change, confirm it, and inspect or undo the decision.
+A working local WealthNest.AI Track C prototype for English digital fixed-deposit documents. Upload PDF/TXT evidence, inspect extracted fields, resolve a missing reference, preview the represented principal change, confirm it, inspect or undo the decision, and track committed FD maturities separately from recorded principal.
 
 ## Run locally
 
@@ -37,7 +37,7 @@ python -m pytest -q
 python -m evaluation.run
 ```
 
-49 automated tests pass. Browser verification also covered uploading a PDF and resolving a masked reference against two accepted deposits.
+50 automated tests pass, including FD maturity date boundaries, filters, committed-record exclusion and commit/reversal refresh. Browser verification also covered uploading a PDF and resolving a masked reference against two accepted deposits.
 
 On the inspected developer-authored regression set, ML plus shared field-role exclusions correctly interprets 61/64 labels, with 97.8% accepted-field precision. Document-pair correctness remains 39/48. The fuzzy baseline now selects its threshold on calibration data with the same error cost as ML. These are development regression results, not independent validation or production accuracy. The prior results are preserved in [baseline-results.json](evaluation/baseline-results.json).
 

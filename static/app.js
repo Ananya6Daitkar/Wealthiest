@@ -4,8 +4,9 @@ const escapeHTML = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;'
 const E = escapeHTML;
 const money = value => new Intl.NumberFormat('en-IN', {style:'currency',currency:'INR',maximumFractionDigits:0}).format(Number(value || 0));
 const fieldNames = {owner_id:'Holder reference',account_id:'Deposit reference',institution:'Institution',as_of:'Effective date',principal:'Principal',currency:'Currency',maturity_value:'Maturity proceeds',maturity_date:'Maturity date'};
-const labels = {workspace:'Import review',history:'Ledger & history',evaluation:'Evidence lab',about:'How it works'};
-const state = {csrf:'',persona:'ananya',view:'workspace',docs:[],ledger:null,selected:null,comparison:null,preview:null,highlight:null,single:null,matchIssue:null,scope:'family',request:0};
+const labels = {workspace:'Import review',history:'Ledger & history',maturities:'FD maturity tracker',evaluation:'Evidence lab',about:'How it works'};
+const maturityLabels = {maturing_soon:'Maturing Soon',upcoming:'Upcoming',matured:'Matured',date_unavailable:'Date unavailable'};
+const state = {csrf:'',persona:'ananya',view:'workspace',docs:[],ledger:null,selected:null,comparison:null,preview:null,highlight:null,single:null,matchIssue:null,scope:'family',request:0,maturityHolder:'',maturityStatus:'',maturitySort:'asc',maturityRequest:0};
 
 async function api(path, options={}) {
   const headers = {...options.headers};
@@ -38,8 +39,48 @@ function render() {
   $('#page-crumb').textContent=labels[state.view];
   if(state.view==='workspace')renderWorkspace();
   else if(state.view==='history')renderHistory();
+  else if(state.view==='maturities')renderMaturities();
   else if(state.view==='evaluation')renderLab();
   else renderAbout();
+}
+function maturityDays(days) {
+  if(days===null)return '—';
+  if(days<0)return `${Math.abs(days)} day${Math.abs(days)===1?'':'s'} overdue`;
+  if(days===0)return 'Due today';
+  return `${days} days`;
+}
+async function renderMaturities() {
+  const request=++state.maturityRequest;
+  const params=new URLSearchParams({scope:state.scope,sort:state.maturitySort});
+  if(state.maturityHolder)params.set('holder',state.maturityHolder);
+  if(state.maturityStatus)params.set('status',state.maturityStatus);
+  $('#view').innerHTML='<div class="panel loading">Loading committed fixed deposits…</div>';
+  try {
+    const tracker=await api('/maturities?'+params);
+    if(request!==state.maturityRequest||state.view!=='maturities')return;
+    const summary=tracker.summary;
+    $('#view').innerHTML=`<div class="section-title"><div><h2>FD maturity tracker <span class="count">${summary.accepted_fds} accepted</span></h2><p>Only current, committed ledger observations · As of ${E(tracker.as_of)}</p></div><select class="scope-select" id="maturity-scope" aria-label="Ledger scope"><option value="family">Shared family ledger</option><option value="${E(state.persona)}">My private ledger</option></select></div>
+    <div class="maturity-stats" aria-label="Maturity summary">
+      <div class="stat"><div class="stat-label">Maturing soon · 30 days or less</div><div class="stat-value">${summary.maturing_soon}</div></div>
+      <div class="stat"><div class="stat-label">Upcoming · more than 30 days</div><div class="stat-value">${summary.upcoming}</div></div>
+      <div class="stat"><div class="stat-label">Matured</div><div class="stat-value">${summary.matured}</div></div>
+      <div class="stat"><div class="stat-label">Date unavailable</div><div class="stat-value">${summary.date_unavailable}</div></div>
+      <div class="stat projected-stat"><div class="stat-label">Projected proceeds · recorded amounts only</div><div class="stat-value">${summary.projected_proceeds_count?money(summary.projected_proceeds):'Not recorded'}</div><div class="stat-foot">Separate from recorded principal · ${summary.projected_proceeds_count} amount${summary.projected_proceeds_count===1?'':'s'}</div></div>
+    </div>
+    <div class="panel maturity-panel"><div class="maturity-tools">
+      <label>Holder<select id="maturity-holder" aria-label="Filter by holder"><option value="">All holders</option>${tracker.holders.map(holder=>`<option value="${E(holder)}" ${state.maturityHolder===holder?'selected':''}>${E(holder)}</option>`).join('')}</select></label>
+      <label>Status<select id="maturity-status" aria-label="Filter by maturity status"><option value="">All statuses</option>${Object.entries(maturityLabels).map(([value,label])=>`<option value="${value}" ${state.maturityStatus===value?'selected':''}>${label}</option>`).join('')}</select></label>
+      <label>Sort by maturity date<select id="maturity-sort" aria-label="Sort by maturity date"><option value="asc" ${state.maturitySort==='asc'?'selected':''}>Earliest first</option><option value="desc" ${state.maturitySort==='desc'?'selected':''}>Latest first</option></select></label>
+    </div><div class="table-scroll"><table class="data-table maturity-table"><thead><tr><th>REFERENCE</th><th>HOLDER</th><th>INSTITUTION</th><th>PRINCIPAL</th><th>MATURITY DATE</th><th>DAYS REMAINING</th><th>PROJECTED PROCEEDS</th><th>STATUS</th></tr></thead><tbody>${tracker.positions.length?tracker.positions.map(row=>`<tr><td>${E(row.account_id||'Not established')}</td><td>${E(row.owner_id||'Not established')}</td><td>${E(row.institution||'Not established')}</td><td>${money(row.principal)}</td><td>${E(row.maturity_date||'Date unavailable')}</td><td>${E(maturityDays(row.days_remaining))}</td><td>${row.projected_proceeds==null?'Not recorded':money(row.projected_proceeds)}</td><td><span class="pill ${row.maturity_status==='matured'?'amber':row.maturity_status==='maturing_soon'?'red':row.maturity_status==='date_unavailable'?'':'green'}">${maturityLabels[row.maturity_status]}</span></td></tr>`).join(''):'<tr><td colspan="8">No committed fixed deposits match these filters.</td></tr>'}</tbody></table></div></div>
+    <p class="maturity-note">Projected proceeds are shown only when present in accepted source evidence; they are not added to principal or treated as realized funds. Pending, unresolved, and uncommitted documents are excluded.</p>`;
+    $('#maturity-scope').value=state.scope;
+    $('#maturity-scope').onchange=e=>action(e.target,async()=>{state.scope=e.target.value;await refresh();renderMaturities();});
+    $('#maturity-holder').onchange=e=>{state.maturityHolder=e.target.value;renderMaturities();};
+    $('#maturity-status').onchange=e=>{state.maturityStatus=e.target.value;renderMaturities();};
+    $('#maturity-sort').onchange=e=>{state.maturitySort=e.target.value;renderMaturities();};
+  } catch(error) {
+    if(request===state.maturityRequest&&state.view==='maturities')notify(error.message,true);
+  }
 }
 function emptyWorkspace() {
   return `<div class="empty-state"><div class="empty-illustration">n·</div><div class="eyebrow">A WORKSPACE YOU CAN PUT TO THE TEST</div><h2>Start with the evidence.</h2><p>Open a synthetic family workspace with an existing deposit, a masked reference, a conflicting statement and a document-borne instruction attack. Every file passes through the real parser.</p><button class="button primary" id="seed">Open synthetic workspace <span>→</span></button><p class="hint">No real bank accounts. No model API key. No preassigned outcomes.</p></div>`;

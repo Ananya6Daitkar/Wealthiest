@@ -1,10 +1,11 @@
 import io
 import sqlite3
+from datetime import date
 from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from reportlab.pdfgen import canvas
-from nestproof.app import create_app
+from nestproof.app import create_app, maturity_details
 from nestproof.engine import normalize, parse_document
 from nestproof.fixtures import pdf_bytes, scenarios
 
@@ -281,3 +282,73 @@ def test_ambiguous_answer_cannot_override_or_guess(client,change,status):
 def test_non_deposit_fields_never_supply_deposit_facts(label):
     ext=parse_document((label+': 400000\nCurrency: INR').encode(),'negative.txt')
     assert not any(f in ext['facts'] for f in ('principal','account_id','maturity_value'))
+
+@pytest.mark.parametrize(('maturity_date,days,status'),[
+    ('2026-10-09',-1,'matured'),
+    ('2026-10-10',0,'maturing_soon'),
+    ('2026-11-09',30,'maturing_soon'),
+    ('2026-11-10',31,'upcoming'),
+    (None,None,'date_unavailable'),
+    ('not-a-date',None,'date_unavailable'),
+])
+def test_maturity_date_boundaries(maturity_date,days,status):
+    result=maturity_details(maturity_date,today=date(2026,10,10))
+    assert result=={'days_remaining':days,'maturity_status':status}
+
+def test_maturity_tracker_filters_only_committed_ledger_records(client):
+    c=client; docs=seed(c)
+    commit(c,preview(c,compare(c,docs,'new')))
+    unresolved=compare(c,docs,'clarify')
+    assert unresolved['kind']=='unresolved'
+    pending_lines=[line.replace('FD-2048','FD-PENDING').replace('PERSON-ANANYA','PERSON-OTHER')
+                   for line in scenarios()[2][1]]
+    pending=upload(c,pending_lines,name='pending.pdf',visibility='family').json()['document']
+    assert pending['id']!=unresolved['right_id']
+
+    tracker=c.get('/api/maturities').json()
+    assert tracker['summary']['accepted_fds']==2
+    assert {row['account_id'] for row in tracker['positions']}=={'FD-1007','FD-2048'}
+    assert all(unresolved['right_id'] not in row['source_ids'] and pending['id'] not in row['source_ids']
+               for row in tracker['positions'])
+
+    commit(c,c.post('/api/documents/'+pending['id']+'/preview').json())
+    tracker=c.get('/api/maturities').json()
+    by_holder=c.get('/api/maturities?holder=PERSON-OTHER').json()
+    assert [row['account_id'] for row in by_holder['positions']]==['FD-PENDING']
+    by_status=c.get('/api/maturities?status=upcoming').json()
+    assert all(row['maturity_status']=='upcoming' for row in by_status['positions'])
+    assert len(by_status['positions'])==sum(row['maturity_status']=='upcoming' for row in tracker['positions'])
+    ascending=[row['maturity_date'] for row in tracker['positions'] if row['maturity_date']]
+    descending=[row['maturity_date'] for row in c.get('/api/maturities?sort=desc').json()['positions']
+                if row['maturity_date']]
+    assert ascending==sorted(ascending)
+    assert descending==sorted(descending,reverse=True)
+
+def test_maturity_tracker_refreshes_on_commit_and_reversal(client):
+    c=client; docs=seed(c)
+    tracker=c.get('/api/maturities').json()
+    assert tracker['summary']['accepted_fds']==1
+    event=commit(c,preview(c,compare(c,docs,'new')))
+    tracker=c.get('/api/maturities').json()
+    assert tracker['revision']==event['revision']
+    assert tracker['summary']['accepted_fds']==2
+    assert c.post(f"/api/events/{event['event_id']}/undo").status_code==200
+    tracker=c.get('/api/maturities').json()
+    assert tracker['summary']['accepted_fds']==1
+
+def test_maturity_tracker_handles_accepted_fd_without_maturity_date(client):
+    lines=['Owner reference: PERSON-NODATE','Deposit reference: FD-NODATE',
+           'Bank identifier: NORTHSTAR','As of: 2026-10-01',
+           'Principal: INR 125000','Currency: INR','Maturity amount: INR 130000']
+    document=upload(client,lines,name='no-maturity-date.pdf',visibility='family').json()['document']
+    review=client.post('/api/comparisons',json={'right_id':document['id']}).json()
+    assert review['kind']=='new'
+    commit(client,preview(client,review))
+    tracker=client.get('/api/maturities?holder=PERSON-NODATE').json()
+    assert tracker['positions'][0]['maturity_date'] is None
+    assert tracker['positions'][0]['days_remaining'] is None
+    assert tracker['positions'][0]['maturity_status']=='date_unavailable'
+    assert tracker['positions'][0]['principal']=='125000.00'
+    assert tracker['positions'][0]['projected_proceeds']=='130000.00'
+    assert tracker['summary']['date_unavailable']==1
+    assert tracker['summary']['projected_proceeds']=='562000.00'
