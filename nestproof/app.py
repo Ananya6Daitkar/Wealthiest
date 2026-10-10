@@ -20,6 +20,23 @@ from .engine import CRITICAL, FIELD_NAMES, model, normalize, parse_document, pos
 from .fixtures import pdf_bytes, scenarios
 
 ROOT = Path(__file__).resolve().parents[1]
+MATURITY_STATUSES = {'maturing_soon', 'upcoming', 'matured', 'date_unavailable'}
+
+
+def maturity_details(maturity_date, today=None):
+    today = today or date.today()
+    try:
+        due = date.fromisoformat(maturity_date)
+    except (TypeError, ValueError):
+        return {'days_remaining': None, 'maturity_status': 'date_unavailable'}
+    days_remaining = (due - today).days
+    if days_remaining < 0:
+        status = 'matured'
+    elif days_remaining <= 30:
+        status = 'maturing_soon'
+    else:
+        status = 'upcoming'
+    return {'days_remaining': days_remaining, 'maturity_status': status}
 
 
 def encode(value):
@@ -585,6 +602,57 @@ def create_app(db_path=None):
             result['events'] = [{k: e[k] for k in ('id', 'revision', 'action', 'actor', 'detail', 'created')} | {
                 'can_undo': e['action'] == 'commit' and e['revision'] == current['revision'] and e['actor'] == user['persona']} for e in events]
             return result
+
+    @app.get('/api/maturities')
+    def get_maturities(scope: str = 'family', holder: str | None = None,
+                       status: str | None = None, sort: str = 'asc', user=Depends(session)):
+        if scope not in ('family', user['persona']):
+            raise HTTPException(404, 'Ledger not available')
+        if status is not None and status not in MATURITY_STATUSES:
+            raise HTTPException(422, 'Choose a valid maturity status')
+        if sort not in ('asc', 'desc'):
+            raise HTTPException(422, 'Choose ascending or descending maturity-date order')
+        with db() as c:
+            ledger = c.execute('SELECT * FROM ledger WHERE scope=?', (scope,)).fetchone()
+            visible = allowed_state(c, json.loads(ledger['state']), user['persona'])
+            rows = []
+            for position in summarize(visible)['positions']:
+                maturity_date = position.get('maturity_date')
+                row = {**position, 'maturity_date': maturity_date,
+                       **maturity_details(maturity_date)}
+                row['projected_proceeds'] = position.get('maturity_value')
+                rows.append(row)
+
+            holders = sorted({row['owner_id'] for row in rows if row.get('owner_id')})
+            counts = {key: 0 for key in MATURITY_STATUSES}
+            proceeds = Decimal('0')
+            proceeds_count = 0
+            for row in rows:
+                counts[row['maturity_status']] += 1
+                if row['projected_proceeds'] is not None:
+                    proceeds += Decimal(row['projected_proceeds'])
+                    proceeds_count += 1
+
+            filtered = [row for row in rows
+                        if (holder is None or row.get('owner_id') == holder)
+                        and (status is None or row['maturity_status'] == status)]
+            dated = [row for row in filtered if row['maturity_date']]
+            undated = [row for row in filtered if not row['maturity_date']]
+            dated.sort(key=lambda row: (row['maturity_date'], row['account_id']), reverse=sort == 'desc')
+            undated.sort(key=lambda row: row['account_id'])
+            return {
+                'scope': scope,
+                'revision': ledger['revision'],
+                'as_of': date.today().isoformat(),
+                'holders': holders,
+                'summary': {
+                    'accepted_fds': len(rows),
+                    **counts,
+                    'projected_proceeds': format(proceeds, '.2f'),
+                    'projected_proceeds_count': proceeds_count,
+                },
+                'positions': dated + undated,
+            }
 
     @app.get('/api/evaluation')
     def evaluation(user=Depends(session)):

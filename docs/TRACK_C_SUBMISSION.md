@@ -49,7 +49,7 @@ FastAPI serves the API and vanilla JavaScript frontend. SQLite serializes writes
 
 ## 6. How do we evaluate it?
 
-- **55 automated tests pass**, including permission boundaries, stale state, conflict handling, receipt access and typed financial roles.
+- **64 automated tests pass**, including permission boundaries, stale state, conflict handling, receipt access and typed financial roles.
 - A reusable browser regression executed upload, preview gating, commit, receipt-link availability and undo: **3 grouped checks passed**.
 - Original development regression: **64/64 label classifications and 48/48 PDF-pair relations correct** after iterative fixes. These cases informed development and are not independent validation.
 - Fresh developer-authored challenge: **30/30 ML/rules relations correct**, versus 11/30 exact/rules and 12/30 fuzzy/rules. Three wording variants, reversed field order/capitalization and ten conditions; same author and PDF generator. No tuning followed the first run. No real-bank accuracy claim.

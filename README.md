@@ -2,7 +2,7 @@
 
 **Review financial evidence before changing the ledger.**
 
-A working local WealthNest.AI Track C prototype for English digital fixed-deposit documents. Upload PDF/TXT evidence, inspect extracted fields, resolve a missing reference, preview the represented principal change, confirm it, and inspect or undo the decision.
+A working local WealthNest.AI Track C prototype for English digital fixed-deposit documents. Upload PDF/TXT evidence, inspect extracted fields, resolve a missing reference, preview the represented principal change, confirm it, inspect or undo the decision, and track committed FD maturities separately from recorded principal.
 
 ## Run locally
 
@@ -37,7 +37,7 @@ python -m pytest -q
 python -m evaluation.run
 ```
 
-**55 automated tests and 3 grouped browser checks pass.** Current development results are 64/64 field labels and 48/48 document pairs. A fresh developer-authored synthetic challenge produced 30/30 ML relations, versus 11/30 exact/rules and 12/30 calibrated fuzzy/rules. These small synthetic sets are not independently validated real-bank accuracy.
+**64 automated tests and 3 grouped browser checks pass.** Current development results are 64/64 field labels and 48/48 document pairs. A fresh developer-authored synthetic challenge produced 30/30 ML relations, versus 11/30 exact/rules and 12/30 calibrated fuzzy/rules. These small synthetic sets are not independently validated real-bank accuracy.
 
 ```sh
 python -m evaluation.challenge

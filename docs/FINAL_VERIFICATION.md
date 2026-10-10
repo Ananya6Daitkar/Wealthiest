@@ -4,7 +4,7 @@
 
 | Check | Executed result |
 |---|---|
-| API/engine tests | 55 passed; one dependency deprecation warning |
+| API/engine tests | 64 passed; one dependency deprecation warning |
 | JavaScript syntax | Passed |
 | Browser regression | 3 grouped checks: upload/review, explicit preview confirmation/commit, receipt link/history/undo |
 | Development labels | ML plus shared role constraints 64/64 |
@@ -41,3 +41,7 @@ For an isolated demonstration use a new `NESTPROOF_DB` path. Do not delete or re
 ## Production gates still open
 
 Independent labeling and real-world document diversity; real-user task study; actual WealthNest workflow validation; production identity and encrypted storage; OCR and broader layout coverage; robust parser isolation and load testing. These are not represented as completed.
+
+## Concurrent work preserved
+
+Merged GitHub commit `ad73865`, which adds the FD Maturity Tracker. Both sets of tests were retained; the merged suite passes 64 tests. The tracker is a deterministic view of accepted deposit maturity dates and projected proceeds, with holder/status filters. It is not a predictive AI model or WealthGPT.

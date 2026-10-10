@@ -1,6 +1,6 @@
 # What we actually built — NestProof
 
-**Updated: 10 October 2026.** Start with [the concise Track C submission](docs/TRACK_C_SUBMISSION.md) and [final verification](docs/FINAL_VERIFICATION.md). Current build: 55 automated tests and 3 grouped browser checks pass; 64/64 development labels, 48/48 development pairs and 30/30 fresh synthetic challenge pairs. These are developer-authored tests, not independent bank-document accuracy. Earlier measurements below are historical.
+**Updated: 10 October 2026.** Start with [the concise Track C submission](docs/TRACK_C_SUBMISSION.md) and [final verification](docs/FINAL_VERIFICATION.md). Current build: 64 automated tests and 3 grouped browser checks pass; 64/64 development labels, 48/48 development pairs and 30/30 fresh synthetic challenge pairs. These are developer-authored tests, not independent bank-document accuracy. Earlier measurements below are historical.
 
 This is **Document Intelligence + Evaluation & Reliability**, not a WealthGPT chatbot. The frontend now includes targeted disambiguation, preview/confirmation, history/undo, downloadable JSON decision receipts and an Evidence lab with policy and challenge results. No guaranteed win or 99+ score is claimed.
 
@@ -20,6 +20,7 @@ The interface contains:
 
 - **Import review:** document queue, side-by-side field comparison, source text with page/line references, targeted clarification and a confirmation preview.
 - **Ledger & history:** accepted positions, effective-date and revision queries, decision history and undo of the latest unchanged decision.
+- **FD Maturity Tracker:** accepted deposit due dates, days remaining and holder/status filters; deterministic, not predictive AI.
 - **Evidence lab:** results loaded from the actual evaluation JSON, baseline comparisons and limitations.
 - **How it works:** processing stages and supported scope.
 
