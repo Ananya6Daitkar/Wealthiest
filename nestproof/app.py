@@ -38,8 +38,16 @@ class Login(StrictModel):
     persona: str
 
 
+class MatchAnswer(StrictModel):
+    field: str
+    value: str = Field(min_length=1, max_length=100)
+    note: str = Field(min_length=5, max_length=500)
+    revision: int
+
+
 class Compare(StrictModel):
     right_id: str
+    clarification: MatchAnswer | None = None
 
 
 class Clarify(StrictModel):
@@ -205,8 +213,8 @@ def create_app(db_path=None):
                 filtered[key] = {'observations': observations}
         return filtered
 
-    def ledger_candidates(c, doc, actor):
-        incoming = json.loads(doc['extracted'])['facts']
+    def ledger_candidates(c, doc, actor, overrides=None):
+        incoming = json.loads(doc['extracted'])['facts'] | (overrides or {})
         known = {field: incoming[field] for field in ('owner_id', 'account_id', 'institution') if incoming.get(field)}
         ledger = c.execute('SELECT revision,state FROM ledger WHERE scope=?', (doc['scope'],)).fetchone()
         state = allowed_state(c, json.loads(ledger['state']), actor)
@@ -225,6 +233,18 @@ def create_app(db_path=None):
         if len(known) == len(('owner_id', 'account_id', 'institution')) or not state:
             return 'new', None, ledger['revision']
         return 'unresolved', [], ledger['revision']
+
+    def match_question(doc, candidates):
+        ext = json.loads(doc['extracted'])
+        if ext['flags']:
+            return None
+        missing = [f for f in ('account_id', 'owner_id', 'institution') if not ext['facts'].get(f)]
+        if not missing or len(candidates) < 2:
+            return None
+        # Ask for the missing identity field that best separates the candidates.
+        field = max(missing, key=lambda f: len({o['facts'][f] for _, o in candidates}))
+        return {'field': field, 'label': 'Confirm the ' + FIELD_NAMES[field] + ' from the original source',
+                'reason': 'This missing field best distinguishes the accepted deposits. Your answer is recorded as user-supplied evidence.'}
 
     def summarize(state, effective=None):
         rows, total = [], Decimal('0')
@@ -264,7 +284,7 @@ def create_app(db_path=None):
     def seed(user=Depends(session)):
         with db(True) as c:
             # Explicit seeding remains idempotent and never resets existing work.
-            created = seed_workspace(c)
+            created = seed_workspace(c, only_if_empty=True)
         return {'created': created}
 
     @app.get('/api/documents')
@@ -340,6 +360,23 @@ def create_app(db_path=None):
         with db(True) as c:
             incoming = document(c, body.right_id, user['persona'])
             match_type, match, revision = ledger_candidates(c, incoming, user['persona'])
+            answers = []
+            if body.clarification:
+                answer = body.clarification
+                if answer.revision != revision:
+                    raise HTTPException(409, 'The ledger changed. Start a new review before answering.')
+                q = match_question(incoming, match) if match_type == 'unresolved' else None
+                if not q or answer.field != q['field']:
+                    raise HTTPException(409, 'Only the currently requested missing identity field can be supplied')
+                try:
+                    value = normalize(answer.field, answer.value)
+                except ValueError as exc:
+                    raise HTTPException(422, str(exc)) from exc
+                match_type, match, revision = ledger_candidates(c, incoming, user['persona'], {answer.field: value})
+                if match_type != 'matched':
+                    raise HTTPException(422, 'This answer does not identify one accepted deposit. Check the original reference or upload clearer evidence; nothing changed.')
+                answers = [{'field': answer.field, 'side': 'right', 'value': value, 'note': answer.note,
+                            'provenance': 'user-supplied', 'actor': user['persona'], 'recorded_at': now()}]
             if match_type == 'new':
                 return {'kind': 'new', 'document': public_doc(incoming, True), 'ledger_revision': revision}
             if match_type == 'unresolved':
@@ -352,7 +389,8 @@ def create_app(db_path=None):
                         'title': 'No unique ledger match',
                         'reason': ('More than one accepted deposit matches the established identity fields.' if candidates
                                    else 'The incoming identity is incomplete and no unique accepted ledger record can be identified.'),
-                        'candidates': candidates, 'ledger_revision': revision}
+                        'candidates': candidates, 'ledger_revision': revision, 'right_id': incoming['id'],
+                        'question': match_question(incoming, match)}
             _, observation = match
             anchor_ids = observation['source_ids']
             anchor_id = next((did for did in anchor_ids if did != incoming['id']), None)
@@ -363,8 +401,8 @@ def create_app(db_path=None):
             cid = secrets.token_hex(12)
             c.execute('''INSERT INTO comparisons
                 (id,actor,left_id,right_id,scope,answers,version,created,left_facts,ledger_revision)
-                VALUES(?,?,?,?,?,?,0,?,?,?)''',
-                (cid, user['persona'], anchor_id, incoming['id'], incoming['scope'], '[]', now(),
+                VALUES(?,?,?,?,?,?,?,?,?,?)''',
+                (cid, user['persona'], anchor_id, incoming['id'], incoming['scope'], encode(answers), len(answers), now(),
                  encode(observation['facts']), revision))
             result = view_comparison(c, cid, user['persona'])
             result['kind'] = 'comparison'

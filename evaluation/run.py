@@ -7,7 +7,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
-from nestproof.engine import classify, clean_label, model, parse_document, reconcile
+from nestproof.engine import classify, clean_label, model, fuzzy_threshold, parse_document, reconcile
 from nestproof.fixtures import pdf_bytes, scenarios
 from nestproof.labels import TRAIN, CALIBRATION
 from .cases import LABELS, pairs
@@ -22,11 +22,13 @@ def main():
     assert not calibration & test, 'Test labels overlap calibration labels'
     _,manifest=model() # exclude cold training from per-label inference latency
     report={'generated_at':datetime.now(timezone.utc).isoformat(),'model':manifest,'platform':platform.platform(),'python':platform.python_version(),
+      'evaluation_status':'Development regression: cases were inspected before adding shared role guards. Not an untouched final test.',
+      'fuzzy_threshold':fuzzy_threshold(),
       'test_sha256':hashlib.sha256((ROOT/'evaluation/cases.py').read_bytes()).hexdigest(),
       'label_cases':sum(map(len,LABELS.values())),'labels':[],'pairs':[],
-      'limitations':'Small developer-authored synthetic test set; same author as training data. No real-user or real-bank validation. Test labels were not used to select the model threshold. PDF layouts share a generator. Latency is local warm inference, not a service SLA.'}
+      'limitations':'Development regression set used to diagnose role errors; shared exclusion rules were added after inspection. Small developer-authored synthetic set; same author as training data. No real-user or real-bank validation. Test labels were not used to select the model threshold. PDF layouts share a generator. Latency is local warm inference, not a service SLA.'}
     generated=[(case,pdf_bytes('Held-out source A',case['left']),pdf_bytes('Held-out source B',case['right'])) for case in pairs()]
-    names={'exact':'Exact dictionary','fuzzy':'Fuzzy dictionary (0.82)','ml':'NestProof local ML'}
+    names={'exact':'Exact dictionary + role guard','fuzzy':f'Calibrated fuzzy + role guard ({fuzzy_threshold():.3f})','ml':'NestProof ML + role guard'}
     for method in names:
         rows=[];elapsed=[]
         for truth,labels in LABELS.items():
@@ -48,8 +50,6 @@ def main():
           'review':sum(r['prediction'] in ('review','blocked') for r in rows),'p95_ms':float(np.percentile(elapsed,95)),
           'failures':[r for r in rows if r['gold']!=r['prediction']]})
     (ROOT/'evaluation/results.json').write_text(json.dumps(report,indent=2)+'\n')
-    for title,lines,scope,owner,scenario in scenarios():
-        (ROOT/'samples'/f'{scenario}.pdf').write_bytes(pdf_bytes(title,lines))
     print(json.dumps({k:report[k] for k in ('label_cases','model')},indent=2))
     for group in ('labels','pairs'):
         for row in report[group]:print(group,json.dumps({k:v for k,v in row.items() if k!='failures'}))

@@ -249,3 +249,35 @@ def test_existing_comparison_schema_migrates(tmp_path):
     with sqlite3.connect(path) as db:
         columns={row[1] for row in db.execute('PRAGMA table_info(comparisons)')}
     assert {'left_facts','ledger_revision'} <= columns
+
+def test_ambiguous_match_resolves_with_attributed_answer(client):
+    c=client; docs=seed(c)
+    commit(c,preview(c,compare(c,docs,'new')))
+    issue=compare(c,docs,'clarify')
+    assert issue['kind']=='unresolved'
+    assert issue['question']['field']=='account_id'
+    body={'right_id':docs['clarify']['id'],'clarification':{'field':'account_id','value':'FD-1007','note':'Verified original certificate','revision':issue['ledger_revision']}}
+    response=c.post('/api/comparisons',json=body)
+    assert response.status_code==200,response.text
+    review=response.json()
+    assert review['result']['relation']=='same'
+    assert review['answers'][0]['provenance']=='user-supplied'
+    assert len(review['answers'])==1
+    p=preview(c,review)
+    assert p['effect']['delta']=='0.00'
+    commit(c,p)
+    assert c.get('/api/ledger').json()['total']=='580000.00'
+
+@pytest.mark.parametrize('change,status',[({'field':'owner_id'},409),({'value':'****1007'},422),({'value':'FD-NOT-FOUND'},422),({'revision':0},409)])
+def test_ambiguous_answer_cannot_override_or_guess(client,change,status):
+    c=client; docs=seed(c); commit(c,preview(c,compare(c,docs,'new')))
+    issue=compare(c,docs,'clarify')
+    answer={'field':'account_id','value':'FD-1007','note':'Verified original certificate','revision':issue['ledger_revision']} | change
+    r=c.post('/api/comparisons',json={'right_id':docs['clarify']['id'],'clarification':answer})
+    assert r.status_code==status,r.text
+    assert c.get('/api/ledger').json()['current_revision']==issue['ledger_revision']
+
+@pytest.mark.parametrize('label',['Outstanding loan principal','Interest amount at maturity','Tax identification number','Loan account number','Unpaid principal interest','Total principal across deposits'])
+def test_non_deposit_fields_never_supply_deposit_facts(label):
+    ext=parse_document((label+': 400000\nCurrency: INR').encode(),'negative.txt')
+    assert not any(f in ext['facts'] for f in ('principal','account_id','maturity_value'))

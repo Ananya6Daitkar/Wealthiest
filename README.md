@@ -37,7 +37,11 @@ python -m pytest -q
 python -m evaluation.run
 ```
 
-32 automated tests pass. On the developer-authored evaluation, local ML classified 55/64 field labels correctly and produced 39/48 correct document-pair relations. The exact and fixed-threshold fuzzy baselines each produced 30/48 correct relations. These are small synthetic experiments, not independent validation or production accuracy. The report includes interpretation failures and abstentions.
+49 automated tests pass. Browser verification also covered uploading a PDF and resolving a masked reference against two accepted deposits.
+
+On the inspected developer-authored regression set, ML plus shared field-role exclusions correctly interprets 61/64 labels, with 97.8% accepted-field precision. Document-pair correctness remains 39/48. The fuzzy baseline now selects its threshold on calibration data with the same error cost as ML. These are development regression results, not independent validation or production accuracy. The prior results are preserved in [baseline-results.json](evaluation/baseline-results.json).
+
+See [the upgrade report](docs/UPGRADE_REPORT.md) for fixes, verification, remaining failures and an honest evidence standard.
 
 ## Scope
 

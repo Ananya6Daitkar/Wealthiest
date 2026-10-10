@@ -74,15 +74,45 @@ def model():
     return pipeline, manifest
 
 
+# Conservative FD-only domain exclusions, shared by every method. These are
+# development-set fixes, not new evidence of model generalization.
+EXCLUDED_ROLE = re.compile(r'\b(?:loan|credit|tax|interest|nominee|aggregate|total)\b', re.I)
+
+
+@lru_cache(maxsize=1)
+def fuzzy_threshold():
+    dictionary = {clean_label(s): k for k, labels in TRAIN.items() for s in labels}
+    trials = []
+    examples = []
+    for truth, labels in CALIBRATION.items():
+        for label in labels:
+            value = clean_label(label)
+            candidate = max(dictionary, key=lambda s: SequenceMatcher(None, value, s).ratio())
+            examples.append((truth, dictionary[candidate], SequenceMatcher(None, value, candidate).ratio(), bool(EXCLUDED_ROLE.search(value))))
+    for threshold in np.arange(.30, .96, .025):
+        cost = accepted = 0
+        for truth, pred, score, excluded in examples:
+            emit = not excluded and pred != 'ignore' and score >= threshold
+            if emit:
+                accepted += 1
+                cost += 12 * int(pred != truth)
+            elif truth != 'ignore':
+                cost += 1
+        trials.append((cost, -accepted, float(threshold)))
+    return round(min(trials)[2], 3)
+
+
 def classify(label, method='ml'):
     value = clean_label(label)
+    if EXCLUDED_ROLE.search(value):
+        return 'ignore', 0.0
     dictionary = {clean_label(s): k for k, labels in TRAIN.items() for s in labels}
     if method == 'exact':
         return dictionary.get(value, 'ignore'), 1.0 if value in dictionary else 0.0
     if method == 'fuzzy':
         candidate = max(dictionary, key=lambda s: SequenceMatcher(None, value, s).ratio())
         score = SequenceMatcher(None, value, candidate).ratio()
-        return (dictionary[candidate] if score >= .82 else 'ignore'), score
+        return (dictionary[candidate] if score >= fuzzy_threshold() else 'ignore'), score
     pipeline, info = model()
     probs = pipeline.predict_proba([value])[0]
     best = int(np.argmax(probs))

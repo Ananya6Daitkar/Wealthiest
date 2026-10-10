@@ -1,6 +1,6 @@
 # What we actually built — NestProof
 
-**Handoff: 10 October 2026.** This file describes the implemented prototype and supersedes future-tense implementation claims in the earlier research documents. It is the requested single-file guide to the product, preview, evidence and limitations.
+**Updated: 10 October 2026.** Current status: 49 automated tests pass; upload and multi-candidate clarification were verified in the browser. Current regression results are 61/64 labels, 97.8% accepted-field precision and 39/48 document pairs. See [the upgrade report](docs/UPGRADE_REPORT.md); historical results below are preserved for comparison. This file describes the implemented prototype and supersedes future-tense implementation claims in the earlier research documents. It is the requested single-file guide to the product, preview, evidence and limitations.
 
 ## The product
 
@@ -54,11 +54,11 @@ The visual design uses a cream background, dark green navigation, document cards
 
 Source revocation is available through the API, not a dedicated interface button. Historical views apply current source access. Revocation can conservatively hide observations or block later changes; it is not a production consent-management system. The synthetic persona switch is intentionally accessible and must never be treated as real authentication.
 
-## Measured evidence
+## Original measured evidence (before the latest upgrade)
 
 Executed with Python 3.12 on macOS. Reproduce using the README commands.
 
-**Automated checks: 32 passed.** These cover clarification, duplicate linking, separate deposits, historical observations, explicit conflict choices, stale previews, repeat-commit rejection, actor permissions, private resources, CSRF, revocation, first uploads, cross-scope rejection, an older-source conflict bypass, question limits, invalid uploads and amount validation. The test runner emits a Starlette/httpx deprecation warning; it does not fail the tests.
+**Historical automated checks: 32 passed at the original handoff.** These cover clarification, duplicate linking, separate deposits, historical observations, explicit conflict choices, stale previews, repeat-commit rejection, actor permissions, private resources, CSRF, revocation, first uploads, cross-scope rejection, an older-source conflict bypass, question limits, invalid uploads and amount validation. The test runner emits a Starlette/httpx deprecation warning; it does not fail the tests.
 
 | Method | Correct field labels /64 | Accepted field precision | Field coverage | Correct PDF-pair relations /48 |
 |---|---:|---:|---:|---:|
