@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123c32"><title>NestProof — Every number, accounted for.</title>
+  <link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to workspace</a>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="NestProof home"><span class="brand-icon">n<span>·</span></span><span>NestProof<small>FINANCIAL EVIDENCE WORKSPACE</small></span></a>
+    <div class="workspace-label">WORKSPACE</div>
+    <nav aria-label="Primary navigation">
+      <button class="nav active" data-view="workspace"><span class="nav-symbol">▦</span> Import review <span class="nav-dot"></span></button>
+      <button class="nav" data-view="history"><span class="nav-symbol">↶</span> Ledger & history</button>
+      <button class="nav" data-view="evaluation"><span class="nav-symbol">⌁</span> Evidence lab</button>
+      <button class="nav" data-view="about"><span class="nav-symbol">◈</span> How it works</button>
+    </nav>
+    <div class="sidebar-note"><span class="mini-label">BUILT FOR THE MOMENT</span><p>Before a number becomes a decision.</p><span>Interpret. Verify. Resolve.</span></div>
+    <div class="local-status"><span class="status-dot"></span> Runs on your machine<small>No external inference calls</small></div>
+    <div class="persona"><span class="avatar">A</span><div><label for="persona">Synthetic demo persona</label><select id="persona"><option value="ananya">Ananya Sharma</option><option value="ravi">Ravi Sharma</option></select></div></div>
+  </aside>
+  <div class="app-shell">
+    <header class="topbar"><div class="breadcrumb">Family workspace <span>/</span> <strong id="page-crumb">Import review</strong></div><div class="top-right"><span class="tag">SYNTHETIC DATA ONLY</span><span class="session-indicator">Local ML <span class="status-dot"></span></span></div></header>
+    <main id="main" tabindex="-1">
+      <section class="page-heading"><div><div class="eyebrow">A CLEARER PICTURE STARTS HERE</div><h1>Every number,<br class="mobile-break"> accounted for.</h1><p>Resolve uncertain records before they become your family's financial picture.</p></div><button class="button primary" id="upload-open"><span>＋</span> Import a document</button></section>
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+      <section id="stats" class="stats" aria-label="Workspace summary"></section>
+      <section id="view"></section>
+      <footer class="page-footer"><span><span class="status-dot"></span> Evidence stays local. Decisions stay yours.</span><span>Research prototype · INR fixed deposits · No investment advice</span></footer>
+    </main>
+  </div>
+  <dialog id="upload-dialog" aria-labelledby="upload-title">
+    <form id="upload-form"><div class="dialog-head"><div><div class="eyebrow">BRING YOUR EVIDENCE</div><h2 id="upload-title">Import a document</h2></div><button type="button" class="icon-button" id="upload-close" aria-label="Close dialog">×</button></div>
+    <p>Use a synthetic FD certificate or statement. Digital PDF or UTF-8 text, up to 3 MB and 10 pages.</p>
+    <label class="dropzone" id="dropzone" for="file"><span class="upload-glyph">↑</span><strong id="file-label">Choose a file or drop it here</strong><small>Scanned PDFs are not supported in this build.</small></label>
+    <input type="file" id="file" name="file" accept=".pdf,.txt" required>
+    <label class="form-label" for="visibility">Who can see this source?</label><select id="visibility" name="visibility"><option value="private">Only this demo persona</option><option value="family">Shared family workspace</option></select>
+    <p class="hint">Private evidence cannot change the shared family ledger. Use shared visibility to compare with shared demo records.</p>
+    <div id="upload-error" class="form-error" role="alert"></div><button class="button primary wide" type="submit">Extract & inspect evidence <span>→</span></button></form>
+  </dialog>
+</body></html>

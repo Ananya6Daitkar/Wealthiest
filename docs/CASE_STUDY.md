@@ -1,3 +1,5 @@
+> Implementation update — 10 October 2026: a working local prototype, tests and evaluation are now included. See [What we built](../WHAT_WE_BUILT.md) for current status; the research-stage plans and preliminary baselines below are preserved as historical context.
+
 # NestProof: resolve ambiguous financial imports with the least user effort
 
 **Track C — Artificial Intelligence | Proposal and evaluation scaffold | 9 October 2026**

@@ -1,3 +1,5 @@
+> Implementation update — 10 October 2026: a working local prototype, tests and evaluation are now included. See [What we built](../WHAT_WE_BUILT.md) for current status; the research-stage plans and preliminary baselines below are preserved as historical context.
+
 # WealthNest.AI Track C: research, selection and solution design
 
 Research cut-off: **9 October 2026, India time**. Prepared from the supplied challenge and live public sources. This is an opportunity proposal, not a report of a reproduced WealthNest defect. Scores are conservative design assessments, not official scores or selection probabilities. The expert and judge roles below are simulated analytical perspectives, not ten external experts or five independently recruited reviewers.
