@@ -8,6 +8,8 @@ NestProof is a local evidence-review workspace for fixed-deposit imports. Its ce
 
 A statement that describes an already recorded deposit should not add its principal twice. A different deposit should add a separate position. An earlier statement should remain in history without replacing a newer observation. Two principal amounts for the same identity and date require an explicit user choice.
 
+Incoming documents are matched against accessible accepted ledger observations, not against the upload queue. A unique match opens a ledger-backed review; a complete identity with no match enters the first-observation flow; incomplete identities with no unique match remain unresolved.
+
 ## Preview
 
 Run the README commands and open **http://127.0.0.1:8765**. GitHub stores the source; it does not host this Python application. The local preview works while the server is running.
@@ -25,7 +27,7 @@ The visual design uses a cream background, dark green navigation, document cards
 
 ## Five-minute live demonstration
 
-1. Click **Open synthetic workspace**. The starting shared deposit principal is ₹4,00,000. All sample PDFs pass through the parser; outcomes are not assigned to fixture names.
+1. Start with a new, otherwise-empty local database. It is initialized with the synthetic workspace, including a shared deposit principal of ₹4,00,000. All sample PDFs pass through the parser; outcomes are not assigned to fixture names.
 2. Choose **Masked deposit summary**. The incoming reference is unresolved. Enter `FD-1007` and a provenance note such as `Verified against the synthetic original certificate`.
 3. Apply the evidence. The result should identify the already represented deposit. Preview shows ₹4,00,000 → ₹4,00,000. Check the confirmation box and record the decision. This is avoided double counting, not recovered money.
 4. Open **Ledger & history**. Inspect the new revision and undo it. The original revision remains available.
@@ -42,7 +44,7 @@ The visual design uses a cream background, dark green navigation, document cards
 | Document ingestion | PDF text extraction with pypdf; UTF-8 text; 3 MB and 10-page limits; unreadable/scanned files rejected |
 | AI interpretation | Local word/character TF-IDF features and logistic regression trained on 85 authored labels; abstention threshold selected on 32 calibration labels |
 | Evidence | Original bytes, hash, extracted lines, field source references and explicitly attributed user answers |
-| Financial constraints | Exact normalized holder/account/institution identity, dated observations, distinct principal/maturity fields and Decimal arithmetic |
+| Financial constraints | Ledger-backed matching on normalized holder/account/institution identity, dated observations, distinct principal/maturity fields and Decimal arithmetic |
 | Clarification | Deterministic priority policy, one missing field at a time, at most two answers per review; not a learned dialogue policy |
 | Changes | Revision-bound preview, actor-bound single-use commit, SQLite transaction, stale-preview rejection |
 | Reversal | Latest unchanged decision can be reversed into a new revision; prior history remains |

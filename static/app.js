@@ -5,7 +5,7 @@ const E = escapeHTML;
 const money = value => new Intl.NumberFormat('en-IN', {style:'currency',currency:'INR',maximumFractionDigits:0}).format(Number(value || 0));
 const fieldNames = {owner_id:'Holder reference',account_id:'Deposit reference',institution:'Institution',as_of:'Effective date',principal:'Principal',currency:'Currency',maturity_value:'Maturity proceeds',maturity_date:'Maturity date'};
 const labels = {workspace:'Import review',history:'Ledger & history',evaluation:'Evidence lab',about:'How it works'};
-const state = {csrf:'',persona:'ananya',view:'workspace',docs:[],ledger:null,selected:null,anchor:null,comparison:null,preview:null,highlight:null,single:null,scope:'family',request:0};
+const state = {csrf:'',persona:'ananya',view:'workspace',docs:[],ledger:null,selected:null,comparison:null,preview:null,highlight:null,single:null,matchIssue:null,scope:'family',request:0};
 
 async function api(path, options={}) {
   const headers = {...options.headers};
@@ -26,7 +26,6 @@ function status(doc) {if(doc.flags.length)return ['Needs attention','red'];if(do
 async function refresh() {
   const [docs,ledger]=await Promise.all([api('/documents'),api('/ledger?scope='+encodeURIComponent(state.scope))]);
   state.docs=docs; state.ledger=ledger;
-  if(!docs.some(d=>d.id===state.anchor))state.anchor=docs.find(d=>d.scenario==='baseline')?.id || docs.find(d=>d.scenario==='private')?.id;
   renderStats();
 }
 function renderStats() {
@@ -50,7 +49,7 @@ function renderWorkspace() {
   $('#view').innerHTML=`<div class="section-title"><div><h2>Import workspace <span class="count">${state.docs.length} sources</span></h2><p>Choose an incoming document. Inspect the evidence before changing the ledger.</p></div><select class="scope-select" id="scope" aria-label="Ledger scope"><option value="family">Shared family ledger</option><option value="${E(state.persona)}">My private ledger</option></select></div>
   <div class="workbench"><aside class="panel"><div class="panel-heading"><h3>Source documents</h3><small>PDF / TXT</small></div><div class="document-list">${state.docs.map(d=>{
     const [text,color]=status(d);return `<button class="document-card ${state.selected===d.id?'active':''}" data-doc="${E(d.id)}"><span class="doc-top"><span class="pdf-icon">${d.name.endsWith('.pdf')?'PDF':'TXT'}</span><span><span class="doc-name">${E(d.name.replace(/\.(pdf|txt)$/i,''))}</span><span class="doc-meta">${E(d.facts.as_of||'Date unresolved')} · ${d.scope==='family'?'Shared':'Private'}</span></span></span><span class="doc-bottom"><span class="pill ${d.scenario==='baseline'?'':color}">${d.scenario==='baseline'?'Starting ledger source':text}</span></span></button>`;
-  }).join('')}</div><div class="queue-footer">Original sources stay intact.<br>Review decisions are stored separately.</div></aside><div id="review-panel">${state.comparison?reviewHTML():state.single?singleHTML():`<div class="empty-state"><div class="empty-illustration">↗</div><h2>A closer look, before a change.</h2><p>Start with <strong>Masked deposit summary</strong> to see how a single missing reference becomes a precise clarification.</p><button class="button secondary" id="start-review">Review the masked statement →</button></div>`}</div></div>`;
+  }).join('')}</div><div class="queue-footer">Original sources stay intact.<br>Review decisions are stored separately.</div></aside><div id="review-panel">${state.comparison?reviewHTML():state.single?singleHTML():state.matchIssue?matchIssueHTML():`<div class="empty-state"><div class="empty-illustration">↗</div><h2>A closer look, before a change.</h2><p>Start with <strong>Masked deposit summary</strong> to see how a single missing reference becomes a precise clarification.</p><button class="button secondary" id="start-review">Review the masked statement →</button></div>`}</div></div>`;
   $('#scope').value=state.scope;$('#scope').onchange=async e=>{state.scope=e.target.value;await action(e.target,async()=>{await refresh();renderStats();});};
   document.querySelectorAll('[data-doc]').forEach(b=>b.onclick=()=>selectDoc(b.dataset.doc));
   if($('#start-review'))$('#start-review').onclick=()=>selectDoc(state.docs.find(d=>d.scenario==='clarify')?.id||state.docs[0].id);
@@ -59,21 +58,25 @@ function renderWorkspace() {
 }
 async function selectDoc(id) {
   if(!id)return;
-  clearNotice();state.selected=id;state.preview=null;state.highlight=null;state.single=null;
+  clearNotice();state.selected=id;state.preview=null;state.highlight=null;state.single=null;state.matchIssue=null;state.comparison=null;
   const doc=state.docs.find(d=>d.id===id);
   if(doc?.scope && doc.scope!==state.scope){state.scope=doc.scope;await refresh();}
-  if(state.anchor===id || state.docs.find(d=>d.id===state.anchor)?.scope!==doc.scope) {
-    state.anchor=state.docs.find(d=>d.id!==id && d.scope===doc.scope && (d.scenario==='baseline'||d.scenario==='private'))?.id || state.docs.find(d=>d.id!==id && d.scope===doc.scope)?.id;
-  }
-  if(!state.anchor){
-    state.comparison=null;
-    try {state.single=await api('/documents/'+id);renderWorkspace();}catch(e){notify(e.message,true);}
-    return;
-  }
   const request=++state.request;
-  $('#review-panel').innerHTML='<div class="panel loading"><span class="busy-indicator">Reading evidence and checking identity, dates and values…</span></div>';
-  try {const c=await api('/comparisons',{method:'POST',body:{left_id:state.anchor,right_id:id}});if(request!==state.request)return;state.comparison=c;renderWorkspace();}
+  $('#review-panel').innerHTML='<div class="panel loading"><span class="busy-indicator">Matching evidence against accepted ledger records…</span></div>';
+  try {
+    const match=await api('/comparisons',{method:'POST',body:{right_id:id}});
+    if(request!==state.request)return;
+    if(match.kind==='new')state.single=match.document;
+    else if(match.kind==='unresolved'||match.kind==='represented')state.matchIssue=match;
+    else state.comparison=match;
+    renderWorkspace();
+  }
   catch(e){if(request===state.request){state.comparison=null;renderWorkspace();notify(e.message,true);}}
+}
+function matchIssueHTML() {
+  const issue=state.matchIssue;
+  const represented=issue.kind==='represented';
+  return `<section class="panel"><div class="review-heading"><div class="eyebrow">LEDGER MATCH</div><span class="pill ${represented?'green':'amber'}">${represented?'Already represented':'Unresolved'}</span><h2>${E(issue.title)}</h2><p>${E(issue.reason)}</p></div><div class="review-body">${issue.candidates.length?`<p>Possible accepted records:</p><ul>${issue.candidates.map(c=>`<li>${E(c.account_id||'Deposit reference not established')} · ${E(c.owner_id||'Holder not established')} · ${E(c.institution||'Institution not established')}</li>`).join('')}</ul>`:''}<p class="block-warning">${represented?'No new observation is needed.': 'No ledger change is available until the incoming identity can be matched unambiguously. Upload clearer evidence or leave this review unresolved.'}</p></div></section>`;
 }
 function singleHTML() {
   const d=state.single,p=state.preview;
@@ -86,7 +89,7 @@ function bindSingle() {
   if($('#first-commit'))$('#first-commit').onclick=e=>action(e.currentTarget,async()=>{const r=await api('/commit',{method:'POST',body:{preview_id:state.preview.id}});state.preview=null;await refresh();renderWorkspace();notify('First observation recorded at revision '+r.revision+'.');});
 }
 function sourceHTML(doc,side) {
-  return `<div class="source"><div class="source-head"><span>${side==='left'?'EXISTING SOURCE':'INCOMING SOURCE'}</span><a href="/api/documents/${E(doc.id)}/source" target="_blank" rel="noopener">Download original ↗</a></div><div class="source-lines">${doc.evidence.map(line=>`<div class="source-line ${line.field===state.highlight?'highlight':''} ${line.status==='quarantined'?'quarantined':''}" data-line="${E(line.id)}"><small>${line.page}.${line.line}</small><span>${E(line.text)}</span></div>`).join('')}</div></div>`;
+  return `<div class="source"><div class="source-head"><span>${side==='left'?'LEDGER SUPPORTING SOURCE':'INCOMING SOURCE'}</span><a href="/api/documents/${E(doc.id)}/source" target="_blank" rel="noopener">Download original ↗</a></div><div class="source-lines">${doc.evidence.map(line=>`<div class="source-line ${line.field===state.highlight?'highlight':''} ${line.status==='quarantined'?'quarantined':''}" data-line="${E(line.id)}"><small>${line.page}.${line.line}</small><span>${E(line.text)}</span></div>`).join('')}</div></div>`;
 }
 function reviewHTML() {
   const c=state.comparison,r=c.result;
@@ -95,8 +98,7 @@ function reviewHTML() {
   const questionHTML=c.question?`<form class="clarification" id="clarification-form"><div class="clarify-top"><span class="clarify-mark">?</span><div><div class="eyebrow">CLARIFICATION ${c.answers.length+1} OF AT MOST 2</div><h3>${E(c.question.label)}</h3><p>${E(c.question.reason)}</p></div></div><label class="form-label" for="answer-value">${c.question.type==='choice'?'Your reviewed choice':'Value from your source'}</label>${c.question.type==='choice'?`<select id="answer-value" required><option value="">Choose deliberately…</option><option value="keep_existing">Keep the existing observation</option><option value="use_incoming">Use the incoming observation</option></select>`:`<input id="answer-value" maxlength="100" placeholder="${E(c.question.placeholder)}" required autocomplete="off">`}<label class="form-label" for="answer-note">Where did you verify it?</label><input id="answer-note" placeholder="For example: original certificate, reference field" minlength="5" maxlength="500" required><div class="form-row"><span class="hint">Recorded as user-supplied evidence. You can leave this unresolved.</span><button class="button secondary" type="submit">Apply evidence & recheck →</button></div></form>`:'';
   const preview=state.preview;
   return `<section class="panel"><div class="review-heading"><div class="review-overline">EVIDENCE REVIEW / ${E(c.right.name.replace(/\.(pdf|txt)$/,''))}</div><span class="pill ${color}">${r.relation==='review'?'Evidence needed':r.relation==='blocked'?'Import quarantined':r.relation==='conflict'?'Conflicting evidence':'Supported proposal'}</span><h2>${E(r.title)}</h2><p>${E(r.reason)}</p></div><div class="review-body">
-    <label class="anchor-picker">Compare with <select id="anchor" aria-label="Existing source">${state.docs.filter(d=>d.id!==c.right.id&&d.scope===c.right.scope).map(d=>`<option value="${E(d.id)}" ${d.id===c.left.id?'selected':''}>${E(d.name)}</option>`).join('')}</select></label>
-    <table class="comparison-table"><thead><tr><th>FIELD</th><th>EXISTING SOURCE</th><th>INCOMING SOURCE</th></tr></thead><tbody>${fields.map(f=>{
+    <table class="comparison-table"><thead><tr><th>FIELD</th><th>LEDGER RECORD</th><th>INCOMING SOURCE</th></tr></thead><tbody>${fields.map(f=>{
       const a=c.interpreted_left[f],b=c.interpreted_right[f],diff=a!==b||a==null||b==null;
       return `<tr class="${diff?'disputed':''}"><td>${fieldNames[f]}</td><td class="${a==null?'missing':''}"><button class="cell-button" data-field="${f}">${E(display(f,a))}</button></td><td class="${b==null?'missing':''}"><button class="cell-button" data-field="${f}">${E(display(f,b))}</button></td></tr>`;
     }).join('')}</tbody></table>
@@ -111,7 +113,6 @@ function reviewHTML() {
 }
 function bindReview() {
   if(!state.comparison)return;
-  if($('#anchor'))$('#anchor').onchange=e=>{state.anchor=e.target.value;selectDoc(state.selected);};
   document.querySelectorAll('[data-field]').forEach(b=>b.onclick=()=>{state.highlight=b.dataset.field;const scroll=window.scrollY;$('#review-panel').innerHTML=reviewHTML();bindReview();window.scrollTo(0,scroll);});
   if($('#clarification-form'))$('#clarification-form').onsubmit=e=>{e.preventDefault();action(e.submitter,async()=>{const c=state.comparison;const value=$('#answer-value').value,note=$('#answer-note').value;state.comparison=await api(`/comparisons/${c.id}/clarify`,{method:'POST',body:{value,note,version:c.version}});state.preview=null;renderWorkspace();notify('Evidence recorded with its source. Constraints have been checked again.');});};
   if($('#preview'))$('#preview').onclick=e=>action(e.currentTarget,async()=>{state.preview=await api(`/comparisons/${state.comparison.id}/preview`,{method:'POST'});renderWorkspace();$('.preview').scrollIntoView({behavior:'smooth',block:'center'});});
@@ -149,7 +150,7 @@ $('#dropzone').ondragover=e=>{e.preventDefault();$('#dropzone').classList.add('d
 $('#dropzone').ondragleave=()=>$('#dropzone').classList.remove('drag');
 $('#dropzone').ondrop=e=>{e.preventDefault();$('#dropzone').classList.remove('drag');if(e.dataTransfer.files.length){$('#file').files=e.dataTransfer.files;$('#file').dispatchEvent(new Event('change'));}};
 $('#upload-form').onsubmit=async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;$('#upload-error').textContent='';try {const data=new FormData(e.currentTarget);const result=await api('/documents',{method:'POST',body:data});$('#upload-dialog').close();e.currentTarget.reset();$('#file-label').textContent='Choose a file or drop it here';state.view='workspace';await refresh();render();notify(result.created?'Document extracted. Inspect its fields and original evidence.':'This exact source already exists. No duplicate was created.');await selectDoc(result.document.id);}catch(err){$('#upload-error').textContent=err.message;}finally{button.disabled=false;}};
-$('#persona').onchange=e=>action(e.target,async()=>{state.request++;const result=await api('/session',{method:'POST',body:{persona:e.target.value}});state.persona=result.persona;state.csrf=result.csrf;state.scope='family';state.comparison=null;state.single=null;state.preview=null;state.selected=null;state.anchor=null;$('.avatar').textContent=state.persona[0].toUpperCase();await refresh();render();notify('Synthetic persona changed. Server-side permissions determine which sources are visible.');});
+$('#persona').onchange=e=>action(e.target,async()=>{state.request++;const result=await api('/session',{method:'POST',body:{persona:e.target.value}});state.persona=result.persona;state.csrf=result.csrf;state.scope='family';state.comparison=null;state.single=null;state.matchIssue=null;state.preview=null;state.selected=null;$('.avatar').textContent=state.persona[0].toUpperCase();await refresh();render();notify('Synthetic persona changed. Server-side permissions determine which sources are visible.');});
 
 (async()=>{
   try {let s;try{s=await api('/session');}catch{s=await api('/session',{method:'POST',body:{persona:'ananya'}});}state.persona=s.persona;state.csrf=s.csrf;$('#persona').value=s.persona;$('.avatar').textContent=s.persona[0].toUpperCase();await refresh();render();}

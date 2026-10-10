@@ -39,7 +39,6 @@ class Login(StrictModel):
 
 
 class Compare(StrictModel):
-    left_id: str
     right_id: str
 
 
@@ -78,12 +77,17 @@ def create_app(db_path=None):
         CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY, persona TEXT, csrf TEXT, expires REAL);
         CREATE TABLE IF NOT EXISTS documents(id TEXT PRIMARY KEY, name TEXT, owner TEXT, scope TEXT, extracted TEXT, content BLOB, hash TEXT, created TEXT, scenario TEXT, revoked INTEGER DEFAULT 0, UNIQUE(scope,hash));
         CREATE TABLE IF NOT EXISTS ledger(scope TEXT PRIMARY KEY, revision INTEGER, state TEXT);
-        CREATE TABLE IF NOT EXISTS comparisons(id TEXT PRIMARY KEY, actor TEXT, left_id TEXT REFERENCES documents(id), right_id TEXT REFERENCES documents(id), scope TEXT, answers TEXT, version INTEGER, created TEXT);
+        CREATE TABLE IF NOT EXISTS comparisons(id TEXT PRIMARY KEY, actor TEXT, left_id TEXT REFERENCES documents(id), right_id TEXT REFERENCES documents(id), scope TEXT, answers TEXT, version INTEGER, created TEXT, left_facts TEXT, ledger_revision INTEGER);
         CREATE TABLE IF NOT EXISTS previews(id TEXT PRIMARY KEY, comparison_id TEXT, actor TEXT, scope TEXT, revision INTEGER, comparison_version INTEGER, before_state TEXT, after_state TEXT, effect TEXT, used INTEGER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY AUTOINCREMENT, scope TEXT, revision INTEGER, action TEXT, actor TEXT, comparison_id TEXT, before_state TEXT, after_state TEXT, detail TEXT, created TEXT);
         ''')
         for scope in ('family', 'ananya', 'ravi'):
             c.execute('INSERT OR IGNORE INTO ledger VALUES(?,0,?)', (scope, '{}'))
+        comparison_columns = {row['name'] for row in c.execute('PRAGMA table_info(comparisons)')}
+        if 'left_facts' not in comparison_columns:
+            c.execute('ALTER TABLE comparisons ADD COLUMN left_facts TEXT')
+        if 'ledger_revision' not in comparison_columns:
+            c.execute('ALTER TABLE comparisons ADD COLUMN ledger_revision INTEGER')
 
     @app.middleware('http')
     async def security_headers(request, call_next):
@@ -133,6 +137,30 @@ def create_app(db_path=None):
                   (did, name, actor, scope, encode(ext), content, ext['hash'], now(), scenario))
         return dict(c.execute('SELECT * FROM documents WHERE id=?', (did,)).fetchone()), True
 
+    def seed_workspace(c, only_if_empty=False):
+        exists = c.execute("SELECT 1 FROM documents WHERE scenario='baseline'").fetchone()
+        if exists:
+            return False
+        if only_if_empty:
+            has_documents = c.execute('SELECT 1 FROM documents LIMIT 1').fetchone()
+            has_events = c.execute('SELECT 1 FROM events LIMIT 1').fetchone()
+            has_ledger_state = c.execute("SELECT 1 FROM ledger WHERE revision != 0 OR state != '{}' LIMIT 1").fetchone()
+            if has_documents or has_events or has_ledger_state:
+                return False
+        for title, lines, scope, owner, scenario in scenarios():
+            row, _ = store_doc(c, pdf_bytes(title, lines), title + '.pdf', owner, scope, scenario)
+            if scenario in ('baseline', 'private'):
+                parsed = json.loads(row['extracted'])
+                if parsed['missing'] or parsed['flags']:
+                    raise HTTPException(500, 'Synthetic fixture did not parse; do not seed a fabricated result')
+                key = position_key(parsed['facts'])
+                state = {key: {'observations': [{'facts': parsed['facts'], 'source_ids': [row['id']],
+                        'recorded_at': now(), 'provenance': 'Synthetic starting ledger'}]}}
+                c.execute('UPDATE ledger SET state=?,revision=1 WHERE scope=?', (encode(state), scope))
+                c.execute('INSERT INTO events(scope,revision,action,actor,before_state,after_state,detail,created) VALUES(?,?,?,?,?,?,?,?)',
+                          (scope, 1, 'seed', owner, '{}', encode(state), 'Loaded synthetic starting position', now()))
+        return True
+
     def comparison(c, cid, actor):
         row = c.execute('SELECT * FROM comparisons WHERE id=? AND actor=?', (cid, actor)).fetchone()
         if not row:
@@ -140,6 +168,8 @@ def create_app(db_path=None):
         left = document(c, row['left_id'], actor)
         right = document(c, row['right_id'], actor)
         a, b = json.loads(left['extracted']), json.loads(right['extracted'])
+        if row['left_facts']:
+            a['facts'] = json.loads(row['left_facts'])
         answers = json.loads(row['answers'])
         for answer in answers:
             if answer['field'] != 'value_choice':
@@ -174,6 +204,27 @@ def create_app(db_path=None):
             if observations:
                 filtered[key] = {'observations': observations}
         return filtered
+
+    def ledger_candidates(c, doc, actor):
+        incoming = json.loads(doc['extracted'])['facts']
+        known = {field: incoming[field] for field in ('owner_id', 'account_id', 'institution') if incoming.get(field)}
+        ledger = c.execute('SELECT revision,state FROM ledger WHERE scope=?', (doc['scope'],)).fetchone()
+        state = allowed_state(c, json.loads(ledger['state']), actor)
+        candidates = []
+        for key, value in state.items():
+            observations = value['observations']
+            current = max(enumerate(observations), key=lambda item: (item[1]['facts']['as_of'], item[0]))[1]
+            facts = current['facts']
+            if all(facts.get(field) == value for field, value in known.items()):
+                candidates.append((key, current))
+
+        if len(candidates) == 1:
+            return 'matched', candidates[0], ledger['revision']
+        if len(candidates) > 1:
+            return 'unresolved', candidates, ledger['revision']
+        if len(known) == len(('owner_id', 'account_id', 'institution')) or not state:
+            return 'new', None, ledger['revision']
+        return 'unresolved', [], ledger['revision']
 
     def summarize(state, effective=None):
         rows, total = [], Decimal('0')
@@ -211,24 +262,10 @@ def create_app(db_path=None):
 
     @app.post('/api/demo')
     def seed(user=Depends(session)):
-        # Seed is idempotent and never resets user work or assigns result labels.
         with db(True) as c:
-            exists = c.execute("SELECT 1 FROM documents WHERE scenario='baseline'").fetchone()
-            if exists:
-                return {'created': False}
-            for title, lines, scope, owner, scenario in scenarios():
-                row, _ = store_doc(c, pdf_bytes(title, lines), title + '.pdf', owner, scope, scenario)
-                if scenario in ('baseline', 'private'):
-                    parsed = json.loads(row['extracted'])
-                    if parsed['missing'] or parsed['flags']:
-                        raise HTTPException(500, 'Synthetic fixture did not parse; do not seed a fabricated result')
-                    key = position_key(parsed['facts'])
-                    state = {key: {'observations': [{'facts': parsed['facts'], 'source_ids': [row['id']],
-                            'recorded_at': now(), 'provenance': 'Synthetic starting ledger'}]}}
-                    c.execute('UPDATE ledger SET state=?,revision=1 WHERE scope=?', (encode(state), scope))
-                    c.execute('INSERT INTO events(scope,revision,action,actor,before_state,after_state,detail,created) VALUES(?,?,?,?,?,?,?,?)',
-                              (scope, 1, 'seed', owner, '{}', encode(state), 'Loaded synthetic starting position', now()))
-        return {'created': True}
+            # Explicit seeding remains idempotent and never resets existing work.
+            created = seed_workspace(c)
+        return {'created': created}
 
     @app.get('/api/documents')
     def documents(user=Depends(session)):
@@ -300,15 +337,38 @@ def create_app(db_path=None):
 
     @app.post('/api/comparisons')
     def compare(body: Compare, user=Depends(session)):
-        if body.left_id == body.right_id:
-            raise HTTPException(400, 'Choose two different documents')
         with db(True) as c:
-            a, b = document(c, body.left_id, user['persona']), document(c, body.right_id, user['persona'])
-            if a['scope'] != b['scope']:
-                raise HTTPException(409, 'Compare documents within the same visibility scope; private evidence cannot change shared holdings')
+            incoming = document(c, body.right_id, user['persona'])
+            match_type, match, revision = ledger_candidates(c, incoming, user['persona'])
+            if match_type == 'new':
+                return {'kind': 'new', 'document': public_doc(incoming, True), 'ledger_revision': revision}
+            if match_type == 'unresolved':
+                candidates = []
+                for _, observation in match:
+                    candidates.append({'account_id': observation['facts'].get('account_id'),
+                                       'owner_id': observation['facts'].get('owner_id'),
+                                       'institution': observation['facts'].get('institution')})
+                return {'kind': 'unresolved',
+                        'title': 'No unique ledger match',
+                        'reason': ('More than one accepted deposit matches the established identity fields.' if candidates
+                                   else 'The incoming identity is incomplete and no unique accepted ledger record can be identified.'),
+                        'candidates': candidates, 'ledger_revision': revision}
+            _, observation = match
+            anchor_ids = observation['source_ids']
+            anchor_id = next((did for did in anchor_ids if did != incoming['id']), None)
+            if not anchor_id:
+                return {'kind': 'represented', 'title': 'Already represented in the ledger',
+                        'reason': 'This source is already attached to the accepted ledger observation.',
+                        'candidates': [], 'ledger_revision': revision}
             cid = secrets.token_hex(12)
-            c.execute('INSERT INTO comparisons VALUES(?,?,?,?,?,?,0,?)', (cid, user['persona'], body.left_id, body.right_id, a['scope'], '[]', now()))
-            return view_comparison(c, cid, user['persona'])
+            c.execute('''INSERT INTO comparisons
+                (id,actor,left_id,right_id,scope,answers,version,created,left_facts,ledger_revision)
+                VALUES(?,?,?,?,?,?,0,?,?,?)''',
+                (cid, user['persona'], anchor_id, incoming['id'], incoming['scope'], '[]', now(),
+                 encode(observation['facts']), revision))
+            result = view_comparison(c, cid, user['persona'])
+            result['kind'] = 'comparison'
+            return result
 
     @app.get('/api/comparisons/{cid}')
     def get_compare(cid: str, user=Depends(session)):
@@ -319,6 +379,9 @@ def create_app(db_path=None):
     def clarify(cid: str, body: Clarify, user=Depends(session)):
         with db(True) as c:
             row, a, b, ea, eb, result, answers = comparison(c, cid, user['persona'])
+            current = c.execute('SELECT revision FROM ledger WHERE scope=?', (row['scope'],)).fetchone()
+            if row['ledger_revision'] is not None and current['revision'] != row['ledger_revision']:
+                raise HTTPException(409, 'The ledger changed. Start a new review against its current records.')
             if row['version'] != body.version:
                 raise HTTPException(409, 'Review changed. Refresh before answering.')
             q = question(result, len(answers))
@@ -339,6 +402,9 @@ def create_app(db_path=None):
     def preview(cid: str, user=Depends(session)):
         with db(True) as c:
             row, left, right, a, b, result, answers = comparison(c, cid, user['persona'])
+            if row['ledger_revision'] is not None and row['ledger_revision'] != c.execute(
+                    'SELECT revision FROM ledger WHERE scope=?', (row['scope'],)).fetchone()['revision']:
+                raise HTTPException(409, 'The ledger changed. Start a new review against its current records.')
             if result['relation'] in ('review', 'blocked', 'conflict'):
                 raise HTTPException(409, 'Evidence is unresolved; no correction preview is available')
             ledger = c.execute('SELECT * FROM ledger WHERE scope=?', (row['scope'],)).fetchone()
@@ -469,6 +535,10 @@ def create_app(db_path=None):
     def home():
         return FileResponse(ROOT / 'static/index.html')
 
+    # New, otherwise-empty databases start with the synthetic workspace. Do not
+    # seed over a database that already contains user documents or ledger history.
+    with db(True) as c:
+        seed_workspace(c, only_if_empty=True)
     return app
 
 

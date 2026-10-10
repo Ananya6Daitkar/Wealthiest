@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T15:39:49.048291+00:00",
+  "generated_at": "2026-10-10T07:54:13.603896+00:00",
   "model": {
     "name": "TF-IDF word/character + logistic regression",
     "training_labels": 85,
@@ -10,9 +10,9 @@
     "calibration_sha256": "63373ec791188dde856cb7b1e09a05ac839a7db3a24ed33a83098b77d67187ba",
     "confidence_note": "Classifier score is not financial correctness probability."
   },
-  "platform": "macOS-26.0.1-arm64-arm-64bit",
-  "python": "3.12.14",
-  "test_sha256": "0d86f966610579fd5d55e923f2e29cb36600715f5344f59953cb6caa6d29592e",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.13.0",
+  "test_sha256": "61b9ca941865e333106725ba4de8eaa8750cf27021f2ffe89761f3c6a68fc41c",
   "label_cases": 64,
   "labels": [
     {
@@ -23,7 +23,7 @@
       "accepted": 0,
       "precision": null,
       "coverage": 0.0,
-      "p95_ms": 0.043433102655399125,
+      "p95_ms": 0.09740502573549746,
       "failures": [
         {
           "label": "Reference of depositor",
@@ -323,7 +323,7 @@
       "accepted": 5,
       "precision": 0.8,
       "coverage": 0.10416666666666667,
-      "p95_ms": 1.509471450845012,
+      "p95_ms": 5.060915136709809,
       "failures": [
         {
           "label": "Reference of depositor",
@@ -599,7 +599,7 @@
       "accepted": 52,
       "precision": 0.8653846153846154,
       "coverage": 0.9583333333333334,
-      "p95_ms": 0.620027701370418,
+      "p95_ms": 2.71678501740098,
       "failures": [
         {
           "label": "Opening invested capital",
@@ -667,7 +667,7 @@
       "false_merges": 0,
       "same_decisions": 1,
       "review": 41,
-      "p95_ms": 3.7024458495579893,
+      "p95_ms": 13.576635008212177,
       "failures": [
         {
           "id": "t1_same",
@@ -911,7 +911,7 @@
       "false_merges": 0,
       "same_decisions": 1,
       "review": 41,
-      "p95_ms": 18.923793200701766,
+      "p95_ms": 55.99236005218699,
       "failures": [
         {
           "id": "t1_same",
@@ -1155,7 +1155,7 @@
       "false_merges": 0,
       "same_decisions": 2,
       "review": 33,
-      "p95_ms": 12.648630701005459,
+      "p95_ms": 52.98506492981686,
       "failures": [
         {
           "id": "t2_same",

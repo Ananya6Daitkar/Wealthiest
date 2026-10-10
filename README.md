@@ -15,7 +15,7 @@ python -m pip install -r requirements.lock.txt
 python -m uvicorn nestproof.app:app --host 127.0.0.1 --port 8765
 ```
 
-Open **http://127.0.0.1:8765** and choose **Open synthetic workspace**. The persona selector is a demonstration mechanism, not production authentication; keep the server bound to loopback and use synthetic documents.
+Open **http://127.0.0.1:8765**. A new, otherwise-empty database is initialized with the synthetic starting records; the persona selector is a demonstration mechanism, not production authentication. Keep the server bound to loopback and use synthetic documents.
 
 ![Actual NestProof evidence review and confirmation preview](docs/NESTPROOF_PREVIEW.jpg)
 

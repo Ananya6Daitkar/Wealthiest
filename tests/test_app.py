@@ -1,4 +1,6 @@
 import io
+import sqlite3
+from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from reportlab.pdfgen import canvas
@@ -22,11 +24,15 @@ def seed(c):
     return {d['scenario']: d for d in c.get('/api/documents').json()}
 
 def compare(c, docs, scenario):
-    r = c.post('/api/comparisons', json={'left_id': docs['baseline']['id'], 'right_id': docs[scenario]['id']})
+    r = c.post('/api/comparisons', json={'right_id': docs[scenario]['id']})
     assert r.status_code == 200, r.text
     return r.json()
 
 def preview(c, review):
+    if review.get('kind') == 'new':
+        r = c.post('/api/documents/' + review['document']['id'] + '/preview')
+        assert r.status_code == 200, r.text
+        return r.json()
     r = c.post('/api/comparisons/' + review['id'] + '/preview')
     assert r.status_code == 200, r.text
     return r.json()
@@ -41,6 +47,8 @@ def upload(c, lines, name='own.pdf', visibility='private'):
 
 def test_clarification_dedup_and_undo(client):
     c=client; docs=seed(c); r=compare(c,docs,'clarify')
+    assert r['kind']=='comparison'
+    assert r['left']['id']==docs['baseline']['id']
     assert r['result']['relation']=='review'
     assert r['question']['field']=='account_id'
     assert c.post('/api/comparisons/'+r['id']+'/preview').status_code==409
@@ -86,12 +94,12 @@ def test_private_routes_and_csrf(client):
     for suffix in ('','/source'):
         assert c.get('/api/documents/'+private['id']+suffix).status_code==404
     assert c.post('/api/documents/'+private['id']+'/preview').status_code==404
-    assert c.post('/api/comparisons',json={'left_id':d['baseline']['id'],'right_id':private['id']}).status_code==404
+    assert c.post('/api/comparisons',json={'right_id':private['id']}).status_code==404
     assert c.post('/api/demo',headers={'X-NestProof-CSRF':'forged'}).status_code==403
     assert c.post('/api/session',headers={'Origin':'https://hostile.invalid'},json={'persona':'ravi'}).status_code==403
 
 def test_actor_cannot_use_others_preview(client):
-    c=client; d=seed(c); r=compare(c,d,'new'); p=preview(c,r)
+    c=client; d=seed(c); r=compare(c,d,'history'); p=preview(c,r)
     login(c,'ravi')
     assert c.get('/api/comparisons/'+r['id']).status_code==404
     assert c.post('/api/commit',json={'preview_id':p['id']}).status_code==404
@@ -127,15 +135,16 @@ def test_first_upload_then_same_upload(client):
 
 def test_cross_scope_comparison_denied(client):
     c=client; d=seed(c); own=upload(c,scenarios()[0][1]).json()['document']
-    assert c.post('/api/comparisons',json={'left_id':d['baseline']['id'],'right_id':own['id']}).status_code==409
+    result=c.post('/api/comparisons',json={'right_id':own['id']}).json()
+    assert result['kind']=='new'
+    assert result['document']['scope']==own['scope']=='ananya'
 
 def test_no_silent_overwrite_from_older_anchor(client):
     c=client; d=seed(c)
-    # Accept the earlier date; comparing it with a different September value
-    # must not bypass the existing September conflict via an 'update' result.
+    # The matcher anchors to the current accepted observation, not the older uploaded statement.
     commit(c,preview(c,compare(c,d,'history')))
-    r=c.post('/api/comparisons',json={'left_id':d['history']['id'],'right_id':d['conflict']['id']}).json()
-    assert r['result']['relation']=='update'
+    r=compare(c,d,'conflict')
+    assert r['result']['relation']=='conflict'
     assert c.post('/api/comparisons/'+r['id']+'/preview').status_code==409
     assert c.get('/api/ledger').json()['total']=='400000.00'
 
@@ -144,7 +153,7 @@ def test_question_limit_and_stale_answer(client):
     # Construct omissions independently of fixture spelling.
     lines=['As of: 2026-09-30','Principal: 400000','Currency: INR']
     doc=upload(c,lines,visibility='family').json()['document']
-    r=c.post('/api/comparisons',json={'left_id':d['baseline']['id'],'right_id':doc['id']}).json()
+    r=c.post('/api/comparisons',json={'right_id':doc['id']}).json()
     for version,value in enumerate(('FD-1007','PERSON-ANANYA')):
         response=c.post('/api/comparisons/'+r['id']+'/clarify',json={'value':value,'note':'Synthetic source confirmation','version':version}); assert response.status_code==200,response.text
     r=response.json(); assert r['question'] is None; assert not r['can_preview']
@@ -171,3 +180,72 @@ def test_conflicting_fields_are_quarantined():
     doc=parse_document(b'Principal: 400000\nPrincipal amount: 500000\nCurrency: INR','conflict.txt')
     assert any(f['code']=='conflicting_field' for f in doc['flags'])
     assert 'principal' not in doc['facts']
+
+def test_new_deposit_uses_ledger_first_observation_flow(client):
+    c=client; docs=seed(c); review=compare(c,docs,'new')
+    assert review['kind']=='new'
+    assert c.get('/api/ledger').json()['total']=='400000.00'
+    p=preview(c,review)
+    assert p['effect']['delta']=='180000.00'
+    commit(c,p)
+    assert c.get('/api/ledger').json()['total']=='580000.00'
+
+def test_multiple_uploads_do_not_become_ledger_matches(client):
+    c=client; docs=seed(c)
+    unrelated=upload(c,scenarios()[2][1],name='uncommitted-new.pdf',visibility='family').json()['document']
+    incoming=upload(c,scenarios()[1][1],name='masked-incoming.pdf',visibility='family').json()['document']
+    review=c.post('/api/comparisons',json={'right_id':incoming['id']}).json()
+    assert review['kind']=='comparison'
+    assert review['left']['id']==docs['baseline']['id']
+    assert review['left']['id']!=unrelated['id']
+
+    new_review=compare(c,docs,'new')
+    commit(c,preview(c,new_review))
+    another=upload(c,scenarios()[1][1],name='masked-after-second-deposit.pdf',visibility='family').json()['document']
+    unresolved=c.post('/api/comparisons',json={'right_id':another['id']}).json()
+    assert unresolved['kind']=='unresolved'
+    assert len(unresolved['candidates'])==2
+
+def test_review_cannot_continue_after_ledger_revision_changes(client):
+    c=client; docs=seed(c); review=compare(c,docs,'clarify')
+    commit(c,preview(c,compare(c,docs,'new')))
+    response=c.post('/api/comparisons/'+review['id']+'/clarify',
+                    json={'value':'FD-1007','note':'Checked the original certificate','version':0})
+    assert response.status_code==409
+
+def test_fresh_workspace_initializes_synthetic_records(tmp_path):
+    with TestClient(create_app(tmp_path/'fresh.db')) as c:
+        login(c)
+        family=c.get('/api/ledger').json()
+        assert family['total']=='400000.00'
+        assert family['current_revision']==1
+        docs=c.get('/api/documents').json()
+        assert any(doc['scenario']=='baseline' for doc in docs)
+        login(c,'ravi')
+        assert c.get('/api/ledger?scope=ravi').json()['total']=='250000.00'
+
+def test_clean_new_fd_is_previewable_and_committable(client):
+    c=client
+    content=(Path(__file__).resolve().parents[1]/'samples'/'new.pdf').read_bytes()
+    uploaded=c.post('/api/documents',files={'file':('new.pdf',content,'application/pdf')},data={'visibility':'private'})
+    assert uploaded.status_code==200, uploaded.text
+    document=uploaded.json()['document']
+    assert document['missing']==[]
+    assert document['flags']==[]
+    review=c.post('/api/comparisons',json={'right_id':document['id']}).json()
+    assert review['kind']=='new'
+    assert c.get('/api/ledger?scope=ananya').json()['total']=='0.00'
+    p=preview(c,review)
+    assert p['effect']['after']=='180000.00'
+    assert c.get('/api/ledger?scope=ananya').json()['total']=='0.00'
+    commit(c,p)
+    assert c.get('/api/ledger?scope=ananya').json()['total']=='180000.00'
+
+def test_existing_comparison_schema_migrates(tmp_path):
+    path=tmp_path/'legacy.db'
+    with sqlite3.connect(path) as db:
+        db.execute('CREATE TABLE comparisons(id TEXT PRIMARY KEY, actor TEXT, left_id TEXT, right_id TEXT, scope TEXT, answers TEXT, version INTEGER, created TEXT)')
+    create_app(path)
+    with sqlite3.connect(path) as db:
+        columns={row[1] for row in db.execute('PRAGMA table_info(comparisons)')}
+    assert {'left_facts','ledger_revision'} <= columns
