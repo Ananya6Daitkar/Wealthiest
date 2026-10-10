@@ -4,6 +4,12 @@
 
 A working local WealthNest.AI Track C prototype for English digital fixed-deposit documents. Upload PDF/TXT evidence, inspect extracted fields, resolve a missing reference, preview the represented principal change, confirm it, inspect or undo the decision, and track committed FD maturities separately from recorded principal.
 
+## Submission guide
+
+Start with the [final Track C case study](docs/TRACK_C_SUBMISSION.md). For the submission form, download the [two-page Word case study](submission/NestProof_Track_C_Submission.docx) and add participant details. Submit it alongside this repository link.
+
+The case study explains the problem, investigation, solution, technical approach and supporting implementation. The [product walkthrough](WHAT_WE_BUILT.md) shows what runs; [final verification](docs/FINAL_VERIFICATION.md) explains the recorded results and their limits. Research and earlier upgrade reports are historical supporting material, not the current implementation specification.
+
 ## Run locally
 
 Python 3.12 is the tested runtime. No model API key or paid service is needed.

@@ -1,4 +1,4 @@
-> Implementation update — 10 October 2026: a working local prototype, tests and evaluation are now included. See [What we built](../WHAT_WE_BUILT.md) for current status; the research-stage plans and preliminary baselines below are preserved as historical context.
+> Historical research archive — 9 October 2026. Read the [final Track C submission](TRACK_C_SUBMISSION.md) and [final verification](FINAL_VERIFICATION.md) for the delivered build. Planned features, preliminary results and speculative scores below describe earlier stages; they are not current capability or judging claims.
 
 # WealthNest.AI Track C: research, selection and solution design
 

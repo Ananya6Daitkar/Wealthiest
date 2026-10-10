@@ -1,3 +1,5 @@
+> Historical implementation plan. For delivered capabilities and measured results, use the [final submission](TRACK_C_SUBMISSION.md) and [verification record](FINAL_VERIFICATION.md). The ranking below records design estimates, not judging results.
+
 # NestProof implementation decision
 
 9 October 2026. This document supersedes proposed implementation choices in the research report where they differ. It does not replace the research or claim an achieved score.
@@ -31,7 +33,7 @@ The selected signature is a bounded question that resolves a critical missing fi
 1. Local extraction/model and relation engine.
 2. Persistent API: upload, compare, clarify, preview, commit, reverse, history.
 3. Actual PDF fixtures and complete review UI.
-4. Independent held-out label and end-to-end synthetic evaluation; meaningful integration tests.
+4. Disjoint authored label splits and end-to-end synthetic evaluation; meaningful integration tests. Independent external validation remains future work.
 5. Browser verification, reproducible instructions, final case study and demo.
 
 ## Hard limits

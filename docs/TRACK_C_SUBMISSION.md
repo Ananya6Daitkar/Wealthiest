@@ -2,6 +2,8 @@
 
 **Track C: Document Intelligence + Evaluation & Reliability.** Working local prototype, 10 October 2026. NestProof is not a WealthGPT chatbot. The challenge offers several directions; this submission deliberately solves one bounded problem.
 
+**Submission files:** [two-page Word case study](../submission/NestProof_Track_C_Submission.docx) · [GitHub repository](https://github.com/Ananya6Daitkar/Wealthiest). The Word case study follows the five deliverable sections; this technical companion answers the eight Track C questions.
+
 ## 1. What problem did we identify?
 
 A household may upload a deposit certificate and a statement describing the same asset. Masked references, unfamiliar field labels, different statement dates and confusion between principal and maturity proceeds can make it unsafe to decide whether to add a new position, attach evidence, preserve history or flag a conflict.

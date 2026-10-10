@@ -1,3 +1,5 @@
+> Historical intermediate upgrade report. Its 49-test and 39/48-pair results were superseded by [final verification](FINAL_VERIFICATION.md). The findings below describe that earlier stage.
+
 # NestProof — verified fixes and evidence gaps
 
 10 October 2026. Built on GitHub commit c79d09b. No earned 99+ score is claimed.
@@ -16,7 +18,7 @@
 
 - `python -m pytest -q`: **49 passed**, one dependency deprecation warning.
 - `node --check static/app.js`: passed.
-- `python -m evaluation.run`: executed; full failure lists remain in `evaluation/results.json`.
+- `python -m evaluation.run`: executed; this stage is preserved in `evaluation/role-guard-results.json`.
 - Actual browser: uploaded `samples/new.pdf` through the file chooser; dialog closed and the uploaded source opened in the first-observation review.
 - Actual browser: previewed and confirmed the shared second synthetic deposit; represented principal became ₹5,80,000.
 - Actual browser: opened the masked statement with both FD-1007 and FD-2048 accepted; saw the new question; supplied FD-1007 and a provenance note; reached the already-represented proposal with the answer attributed.
@@ -25,7 +27,7 @@ API tests also exercise wrong/masked references, stale answers, attempts to over
 
 ## Measured results
 
-| Measure | Original | Current development regression |
+| Measure | Original | Intermediate development regression |
 |---|---:|---:|
 | ML correct labels | 55/64 | 61/64 |
 | ML accepted-field precision | 86.5% | 97.8% (45/46) |
