@@ -16,7 +16,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
-from .engine import CRITICAL, FIELD_NAMES, model, normalize, parse_document, position_key, question, reconcile
+from .engine import CRITICAL, FIELD_NAMES, model, normalize, parse_document, position_key, question, reconcile, select_match_field
 from .fixtures import pdf_bytes, scenarios
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -242,7 +242,7 @@ def create_app(db_path=None):
         if not missing or len(candidates) < 2:
             return None
         # Ask for the missing identity field that best separates the candidates.
-        field = max(missing, key=lambda f: len({o['facts'][f] for _, o in candidates}))
+        field = select_match_field([o['facts'] for _, o in candidates], missing)
         return {'field': field, 'label': 'Confirm the ' + FIELD_NAMES[field] + ' from the original source',
                 'reason': 'This missing field best distinguishes the accepted deposits. Your answer is recorded as user-supplied evidence.'}
 
@@ -536,6 +536,30 @@ def create_app(db_path=None):
                       (event['scope'], rev, 'undo', user['persona'], ledger['state'], event['before_state'], f'Reversed decision {eid}; original history preserved', now()))
             return {'revision': rev}
 
+    @app.get('/api/events/{eid}/receipt')
+    def receipt(eid: int, user=Depends(session)):
+        with db() as c:
+            event = c.execute('SELECT * FROM events WHERE id=? AND scope IN (?,?)', (eid, 'family', user['persona'])).fetchone()
+            if not event:
+                raise HTTPException(404, 'Decision receipt not available')
+            before, after = json.loads(event['before_state']), json.loads(event['after_state'])
+            source_ids = sorted({did for state in (before, after) for value in state.values()
+                                 for observation in value['observations'] for did in observation['source_ids']})
+            # Receipts are derived anew under current permissions; never expose
+            # historical amounts from a revoked or inaccessible source.
+            sources = [public_doc(document(c, did, user['persona']), True) for did in source_ids]
+            prior, current = summarize(before), summarize(after)
+            result = {'format': 'nestproof-decision-receipt-v1', 'event_id': eid,
+                      'scope': event['scope'], 'revision': event['revision'], 'actor': event['actor'],
+                      'action': event['action'], 'recorded_at': event['created'], 'decision': event['detail'],
+                      'principal_before': prior['total'], 'principal_after': current['total'],
+                      'principal_delta': format(Decimal(current['total']) - Decimal(prior['total']), '.2f'),
+                      'basis': current['basis'], 'sources': sources, 'observations_before': before, 'observations_after': after,
+                      'checks': ['Current source access', 'Revision-bound transaction', 'Typed INR principal', 'Explicit confirmation required by review interface'],
+                      'notice': 'Local audit export, not institution verification, a cryptographic attestation or money recovered.'}
+            return Response(json.dumps(result, indent=2), media_type='application/json',
+                            headers={'Content-Disposition': f'attachment; filename="nestproof-decision-{eid}.json"'})
+
     @app.get('/api/ledger')
     def get_ledger(scope: str = 'family', revision: int | None = None, as_of: str | None = None, user=Depends(session)):
         if scope not in ('family', user['persona']):
@@ -565,7 +589,14 @@ def create_app(db_path=None):
     @app.get('/api/evaluation')
     def evaluation(user=Depends(session)):
         report = ROOT / 'evaluation/results.json'
-        return json.loads(report.read_text()) if report.exists() else {'status': 'not_run'}
+        if not report.exists():
+            return {'status': 'not_run'}
+        result = json.loads(report.read_text())
+        for name in ('challenge', 'clarification'):
+            extra = ROOT / f'evaluation/{name}-results.json'
+            if extra.exists():
+                result[name] = json.loads(extra.read_text())
+        return result
 
     app.mount('/static', StaticFiles(directory=ROOT / 'static'), name='static')
 

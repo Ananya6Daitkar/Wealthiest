@@ -106,6 +106,15 @@ def classify(label, method='ml'):
     value = clean_label(label)
     if EXCLUDED_ROLE.search(value):
         return 'ignore', 0.0
+    # A compositional role constraint shared by all methods: invested/deposited
+    # capital is principal, except when qualified as future/maturity/redemption.
+    words = set(value.split())
+    if words & {'currency', 'denomination'}:
+        return 'currency', 1.0
+    if words & {'maturity', 'expiry'} and words & {'value', 'amount', 'proceeds', 'payout', 'sum'} and not words & {'date', 'day'}:
+        return 'maturity_value', 1.0
+    if 'capital' in words and words & {'invested', 'deposited', 'initial', 'original'} and not words & {'future', 'maturity', 'redemption', 'projected', 'expiry'}:
+        return 'principal', 1.0
     dictionary = {clean_label(s): k for k, labels in TRAIN.items() for s in labels}
     if method == 'exact':
         return dictionary.get(value, 'ignore'), 1.0 if value in dictionary else 0.0
@@ -270,3 +279,10 @@ def question(result, answers=0):
 
 def position_key(facts):
     return '|'.join(facts[f] for f in IDENTITY)
+
+
+def select_match_field(facts, missing):
+    """Deterministic candidate discrimination, not a learned question policy."""
+    if not facts or not missing:
+        return None
+    return max(missing, key=lambda f: len({o.get(f) for o in facts}))

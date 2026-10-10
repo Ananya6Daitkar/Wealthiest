@@ -37,11 +37,18 @@ python -m pytest -q
 python -m evaluation.run
 ```
 
-49 automated tests pass. Browser verification also covered uploading a PDF and resolving a masked reference against two accepted deposits.
+**55 automated tests and 3 grouped browser checks pass.** Current development results are 64/64 field labels and 48/48 document pairs. A fresh developer-authored synthetic challenge produced 30/30 ML relations, versus 11/30 exact/rules and 12/30 calibrated fuzzy/rules. These small synthetic sets are not independently validated real-bank accuracy.
 
-On the inspected developer-authored regression set, ML plus shared field-role exclusions correctly interprets 61/64 labels, with 97.8% accepted-field precision. Document-pair correctness remains 39/48. The fuzzy baseline now selects its threshold on calibration data with the same error cost as ML. These are development regression results, not independent validation or production accuracy. The prior results are preserved in [baseline-results.json](evaluation/baseline-results.json).
+```sh
+python -m evaluation.challenge
+python -m evaluation.clarification
+```
 
-See [the upgrade report](docs/UPGRADE_REPORT.md) for fixes, verification, remaining failures and an honest evidence standard.
+Start with the concise [Track C submission](docs/TRACK_C_SUBMISSION.md), which answers all eight required questions. See [final verification and limitations](docs/FINAL_VERIFICATION.md), [browser test](browser/regression.mjs), and the preserved original and failed intermediate experiments in `evaluation/`.
+
+New: downloadable JSON decision receipts in Ledger & history, including source evidence, provenance, before/after principal and revision. Receipt access follows current source permissions.
+
+**NestProof is document intelligence and review—not a WealthGPT chatbot.**
 
 ## Scope
 

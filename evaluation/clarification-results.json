@@ -1,0 +1,282 @@
+{
+  "status": "Synthetic oracle-answer policy simulation. Not user effort or independently validated impact.",
+  "n": 30,
+  "mean_questions": {
+    "adaptive": 1.0,
+    "fixed": 2.0,
+    "all_fields": 3.0
+  },
+  "limitations": "Cases deliberately have one fully distinguishing field. No typo, incorrect answer, partial distinction, abandonment or human timing is modeled.",
+  "rows": [
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 2,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 2,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "account_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 1,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 2,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 2,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "owner_id",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 2,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 2,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 2,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 3,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    },
+    {
+      "distinguishing_field": "institution",
+      "candidates": 5,
+      "questions": {
+        "adaptive": 1,
+        "fixed": 3,
+        "all_fields": 3
+      }
+    }
+  ]
+}

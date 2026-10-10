@@ -1,6 +1,8 @@
 # What we actually built — NestProof
 
-**Updated: 10 October 2026.** Current status: 49 automated tests pass; upload and multi-candidate clarification were verified in the browser. Current regression results are 61/64 labels, 97.8% accepted-field precision and 39/48 document pairs. See [the upgrade report](docs/UPGRADE_REPORT.md); historical results below are preserved for comparison. This file describes the implemented prototype and supersedes future-tense implementation claims in the earlier research documents. It is the requested single-file guide to the product, preview, evidence and limitations.
+**Updated: 10 October 2026.** Start with [the concise Track C submission](docs/TRACK_C_SUBMISSION.md) and [final verification](docs/FINAL_VERIFICATION.md). Current build: 55 automated tests and 3 grouped browser checks pass; 64/64 development labels, 48/48 development pairs and 30/30 fresh synthetic challenge pairs. These are developer-authored tests, not independent bank-document accuracy. Earlier measurements below are historical.
+
+This is **Document Intelligence + Evaluation & Reliability**, not a WealthGPT chatbot. The frontend now includes targeted disambiguation, preview/confirmation, history/undo, downloadable JSON decision receipts and an Evidence lab with policy and challenge results. No guaranteed win or 99+ score is claimed.
 
 ## The product
 

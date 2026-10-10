@@ -1,0 +1,880 @@
+{
+  "status": "Fresh developer-authored challenge; not external independent validation",
+  "generated_at": "2026-10-10T09:05:33.648321+00:00",
+  "challenge_sha256": "e56ce88c632c094d0fbfd4030806d60117b12a512c79b55a71ae9dd30c6059ca",
+  "engine_sha256": "f9fadc556bb1df959def9f0525dcf436d73f9f4d3374005e88e6ad516a1d2d44",
+  "methods": [
+    {
+      "method": "exact",
+      "n": 30,
+      "correct": 11,
+      "false_same": 0,
+      "rows": [
+        {
+          "id": "layout0-same",
+          "gold": "same",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-different_deposit",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-different_holder",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-later",
+          "gold": "update",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-earlier",
+          "gold": "historical",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-conflicting",
+          "gold": "conflict",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout0-bad_maturity",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-same",
+          "gold": "same",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-different_deposit",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-different_holder",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-later",
+          "gold": "update",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-earlier",
+          "gold": "historical",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-conflicting",
+          "gold": "conflict",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-bad_maturity",
+          "gold": "blocked",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout2-same",
+          "gold": "same",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-different_deposit",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-different_holder",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-later",
+          "gold": "update",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-earlier",
+          "gold": "historical",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-conflicting",
+          "gold": "conflict",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout2-bad_maturity",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        }
+      ]
+    },
+    {
+      "method": "fuzzy",
+      "n": 30,
+      "correct": 12,
+      "false_same": 0,
+      "rows": [
+        {
+          "id": "layout0-same",
+          "gold": "same",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-different_deposit",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-different_holder",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-later",
+          "gold": "update",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-earlier",
+          "gold": "historical",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-conflicting",
+          "gold": "conflict",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout0-bad_maturity",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout0-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-same",
+          "gold": "same",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-different_deposit",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-different_holder",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-later",
+          "gold": "update",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-earlier",
+          "gold": "historical",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-conflicting",
+          "gold": "conflict",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-bad_maturity",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout1-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-same",
+          "gold": "same",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-different_deposit",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-different_holder",
+          "gold": "separate",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-later",
+          "gold": "update",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-earlier",
+          "gold": "historical",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-conflicting",
+          "gold": "conflict",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "owner_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "layout2-bad_maturity",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "layout2-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": [
+            "owner_id",
+            "as_of"
+          ]
+        }
+      ]
+    },
+    {
+      "method": "ml",
+      "n": 30,
+      "correct": 30,
+      "false_same": 0,
+      "rows": [
+        {
+          "id": "layout0-same",
+          "gold": "same",
+          "predicted": "same",
+          "missing": []
+        },
+        {
+          "id": "layout0-different_deposit",
+          "gold": "separate",
+          "predicted": "separate",
+          "missing": []
+        },
+        {
+          "id": "layout0-different_holder",
+          "gold": "separate",
+          "predicted": "separate",
+          "missing": []
+        },
+        {
+          "id": "layout0-later",
+          "gold": "update",
+          "predicted": "update",
+          "missing": []
+        },
+        {
+          "id": "layout0-earlier",
+          "gold": "historical",
+          "predicted": "historical",
+          "missing": []
+        },
+        {
+          "id": "layout0-conflicting",
+          "gold": "conflict",
+          "predicted": "conflict",
+          "missing": []
+        },
+        {
+          "id": "layout0-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "account_id"
+          ]
+        },
+        {
+          "id": "layout0-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "layout0-bad_maturity",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": []
+        },
+        {
+          "id": "layout0-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": []
+        },
+        {
+          "id": "layout1-same",
+          "gold": "same",
+          "predicted": "same",
+          "missing": []
+        },
+        {
+          "id": "layout1-different_deposit",
+          "gold": "separate",
+          "predicted": "separate",
+          "missing": []
+        },
+        {
+          "id": "layout1-different_holder",
+          "gold": "separate",
+          "predicted": "separate",
+          "missing": []
+        },
+        {
+          "id": "layout1-later",
+          "gold": "update",
+          "predicted": "update",
+          "missing": []
+        },
+        {
+          "id": "layout1-earlier",
+          "gold": "historical",
+          "predicted": "historical",
+          "missing": []
+        },
+        {
+          "id": "layout1-conflicting",
+          "gold": "conflict",
+          "predicted": "conflict",
+          "missing": []
+        },
+        {
+          "id": "layout1-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "account_id"
+          ]
+        },
+        {
+          "id": "layout1-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "layout1-bad_maturity",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": []
+        },
+        {
+          "id": "layout1-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": []
+        },
+        {
+          "id": "layout2-same",
+          "gold": "same",
+          "predicted": "same",
+          "missing": []
+        },
+        {
+          "id": "layout2-different_deposit",
+          "gold": "separate",
+          "predicted": "separate",
+          "missing": []
+        },
+        {
+          "id": "layout2-different_holder",
+          "gold": "separate",
+          "predicted": "separate",
+          "missing": []
+        },
+        {
+          "id": "layout2-later",
+          "gold": "update",
+          "predicted": "update",
+          "missing": []
+        },
+        {
+          "id": "layout2-earlier",
+          "gold": "historical",
+          "predicted": "historical",
+          "missing": []
+        },
+        {
+          "id": "layout2-conflicting",
+          "gold": "conflict",
+          "predicted": "conflict",
+          "missing": []
+        },
+        {
+          "id": "layout2-masked",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "account_id"
+          ]
+        },
+        {
+          "id": "layout2-no_principal",
+          "gold": "review",
+          "predicted": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "layout2-bad_maturity",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": []
+        },
+        {
+          "id": "layout2-hostile",
+          "gold": "blocked",
+          "predicted": "blocked",
+          "missing": []
+        }
+      ]
+    }
+  ]
+}

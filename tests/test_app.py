@@ -281,3 +281,30 @@ def test_ambiguous_answer_cannot_override_or_guess(client,change,status):
 def test_non_deposit_fields_never_supply_deposit_facts(label):
     ext=parse_document((label+': 400000\nCurrency: INR').encode(),'negative.txt')
     assert not any(f in ext['facts'] for f in ('principal','account_id','maturity_value'))
+
+def test_receipt_exposes_evidence_and_obeys_current_access(client):
+    c=client; docs=seed(c)
+    event=commit(c,preview(c,compare(c,docs,'new')))
+    response=c.get(f"/api/events/{event['event_id']}/receipt")
+    assert response.status_code==200
+    receipt=response.json()
+    assert receipt['principal_delta']=='180000.00'
+    assert receipt['sources'][0]['evidence']
+    assert 'attachment' in response.headers['content-disposition']
+    c.post('/api/documents/'+docs['baseline']['id']+'/revoke')
+    assert c.get(f"/api/events/{event['event_id']}/receipt").status_code==404
+
+def test_private_receipt_not_exposed_to_other_persona(client):
+    c=client; doc=upload(c,scenarios()[0][1]).json()['document']
+    p=c.post('/api/documents/'+doc['id']+'/preview').json();event=commit(c,p)
+    login(c,'ravi')
+    assert c.get(f"/api/events/{event['event_id']}/receipt").status_code==404
+
+@pytest.mark.parametrize('label,value,field',[('Original invested capital','400000','principal'),('Principal denomination','INR','currency'),('Value on expiry','432000','maturity_value')])
+def test_financial_qualifiers_are_typed(label,value,field):
+    ext=parse_document((label+': '+value+'\nFictional certificate').encode(),'typed.txt')
+    assert field in ext['facts']
+
+def test_maturity_inconsistency_not_hidden_by_new_principal_recall():
+    ext=parse_document(b'Opening invested capital: 400000\nValue on expiry: 300000','roles.txt')
+    assert any(f['code']=='amount_inconsistency' for f in ext['flags'])

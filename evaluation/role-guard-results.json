@@ -1,0 +1,1101 @@
+{
+  "generated_at": "2026-10-10T08:58:25.522413+00:00",
+  "model": {
+    "name": "TF-IDF word/character + logistic regression",
+    "training_labels": 85,
+    "calibration_labels": 32,
+    "threshold": 0.3,
+    "calibration_wrong_accepted": 0,
+    "training_sha256": "919666d398c4535df5ce68e486988c63b42518c5db2d12dd3d6b80fb9be3e425",
+    "calibration_sha256": "63373ec791188dde856cb7b1e09a05ac839a7db3a24ed33a83098b77d67187ba",
+    "confidence_note": "Classifier score is not financial correctness probability."
+  },
+  "platform": "macOS-26.0.1-arm64-arm-64bit",
+  "python": "3.12.14",
+  "evaluation_status": "Development regression: cases were inspected before adding shared role guards. Not an untouched final test.",
+  "fuzzy_threshold": 0.775,
+  "test_sha256": "0d86f966610579fd5d55e923f2e29cb36600715f5344f59953cb6caa6d29592e",
+  "label_cases": 64,
+  "labels": [
+    {
+      "method": "exact",
+      "name": "Exact dictionary + role guard",
+      "n": 64,
+      "correct": 16,
+      "accepted": 0,
+      "precision": null,
+      "coverage": 0.0,
+      "p95_ms": 0.04986864623788278,
+      "failures": [
+        {
+          "label": "Reference of depositor",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Registered customer identifier",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Identity of account holder",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Investor identity reference",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Holder reference ID",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Depositor ref",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Fixed deposit reference number",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "FD certificate number",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Term deposit account ID",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Deposit receipt identifier",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Reference of certificate",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "FD ref no",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Issuing bank identifier",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Institution reference code",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Bank institution",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Deposit issuer bank",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Financial institution identifier",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Issuer bank code",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Observation date",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Account statement date",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Position as at",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Statement reporting date",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Valuation as of",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Date of balance",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Original principal sum",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Deposited principal amount",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Initial principal balance",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Investment principal amount",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Original capital deposited",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Opening invested capital",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Maturity redemption amount",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Expected maturity proceeds",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Payout amount at maturity",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Sum payable on maturity",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Deposit maturity proceeds",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Value on expiry",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "FD maturity date",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Scheduled redemption date",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Date of deposit expiry",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Certificate matures on",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Final term date",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Maturity due date",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Account currency code",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Currency denomination code",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Deposit monetary unit",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Principal denomination",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Currency of deposit",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.0
+        },
+        {
+          "label": "Monetary currency",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.0
+        }
+      ]
+    },
+    {
+      "method": "fuzzy",
+      "name": "Calibrated fuzzy + role guard (0.775)",
+      "n": 64,
+      "correct": 32,
+      "accepted": 17,
+      "precision": 0.9411764705882353,
+      "coverage": 0.3541666666666667,
+      "p95_ms": 1.4124106033705175,
+      "failures": [
+        {
+          "label": "Reference of depositor",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.53659
+        },
+        {
+          "label": "Registered customer identifier",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.69388
+        },
+        {
+          "label": "Identity of account holder",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.68293
+        },
+        {
+          "label": "Holder reference ID",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.76471
+        },
+        {
+          "label": "Depositor ref",
+          "gold": "owner_id",
+          "prediction": "ignore",
+          "score": 0.73333
+        },
+        {
+          "label": "Fixed deposit reference number",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.73684
+        },
+        {
+          "label": "FD certificate number",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.73469
+        },
+        {
+          "label": "Term deposit account ID",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.71111
+        },
+        {
+          "label": "Deposit receipt identifier",
+          "gold": "account_id",
+          "prediction": "owner_id",
+          "score": 0.82609
+        },
+        {
+          "label": "Reference of certificate",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.57895
+        },
+        {
+          "label": "FD ref no",
+          "gold": "account_id",
+          "prediction": "ignore",
+          "score": 0.46154
+        },
+        {
+          "label": "Institution reference code",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.68182
+        },
+        {
+          "label": "Deposit issuer bank",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.62857
+        },
+        {
+          "label": "Issuer bank code",
+          "gold": "institution",
+          "prediction": "ignore",
+          "score": 0.72
+        },
+        {
+          "label": "Observation date",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.75862
+        },
+        {
+          "label": "Statement reporting date",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.73684
+        },
+        {
+          "label": "Valuation as of",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.75862
+        },
+        {
+          "label": "Date of balance",
+          "gold": "as_of",
+          "prediction": "ignore",
+          "score": 0.66667
+        },
+        {
+          "label": "Original principal sum",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.61538
+        },
+        {
+          "label": "Investment principal amount",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.74419
+        },
+        {
+          "label": "Opening invested capital",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.625
+        },
+        {
+          "label": "Maturity redemption amount",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.73171
+        },
+        {
+          "label": "Payout amount at maturity",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.66667
+        },
+        {
+          "label": "Value on expiry",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.5641
+        },
+        {
+          "label": "Scheduled redemption date",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.75
+        },
+        {
+          "label": "Date of deposit expiry",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.68293
+        },
+        {
+          "label": "Certificate matures on",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.66667
+        },
+        {
+          "label": "Final term date",
+          "gold": "maturity_date",
+          "prediction": "ignore",
+          "score": 0.64286
+        },
+        {
+          "label": "Currency denomination code",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.66667
+        },
+        {
+          "label": "Deposit monetary unit",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.76471
+        },
+        {
+          "label": "Principal denomination",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.70588
+        },
+        {
+          "label": "Currency of deposit",
+          "gold": "currency",
+          "prediction": "ignore",
+          "score": 0.75
+        }
+      ]
+    },
+    {
+      "method": "ml",
+      "name": "NestProof ML + role guard",
+      "n": 64,
+      "correct": 61,
+      "accepted": 46,
+      "precision": 0.9782608695652174,
+      "coverage": 0.9583333333333334,
+      "p95_ms": 0.6123545052105328,
+      "failures": [
+        {
+          "label": "Opening invested capital",
+          "gold": "principal",
+          "prediction": "ignore",
+          "score": 0.50084
+        },
+        {
+          "label": "Value on expiry",
+          "gold": "maturity_value",
+          "prediction": "ignore",
+          "score": 0.41779
+        },
+        {
+          "label": "Principal denomination",
+          "gold": "currency",
+          "prediction": "principal",
+          "score": 0.47467
+        }
+      ]
+    }
+  ],
+  "pairs": [
+    {
+      "method": "exact",
+      "name": "Exact dictionary + role guard",
+      "n": 48,
+      "correct": 30,
+      "false_merges": 0,
+      "same_decisions": 1,
+      "review": 41,
+      "p95_ms": 3.302608099693316,
+      "failures": [
+        {
+          "id": "t1_same",
+          "gold": "same",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t1_different_account",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t1_different_owner",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t1_different_bank",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t1_newer",
+          "gold": "update",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t1_older",
+          "gold": "historical",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t1_conflict",
+          "gold": "conflict",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t1_conflicting_field",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "currency"
+          ]
+        },
+        {
+          "id": "t1_inconsistent_maturity",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_same",
+          "gold": "same",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_different_account",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_different_owner",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_different_bank",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_newer",
+          "gold": "update",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_older",
+          "gold": "historical",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_conflict",
+          "gold": "conflict",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_conflicting_field",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "currency"
+          ]
+        },
+        {
+          "id": "t2_inconsistent_maturity",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal",
+            "currency"
+          ]
+        }
+      ]
+    },
+    {
+      "method": "fuzzy",
+      "name": "Calibrated fuzzy + role guard (0.775)",
+      "n": 48,
+      "correct": 30,
+      "false_merges": 0,
+      "same_decisions": 1,
+      "review": 41,
+      "p95_ms": 18.62330405274406,
+      "failures": [
+        {
+          "id": "t1_same",
+          "gold": "same",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t1_different_account",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t1_different_owner",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t1_different_bank",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t1_newer",
+          "gold": "update",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t1_older",
+          "gold": "historical",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t1_conflict",
+          "gold": "conflict",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t1_conflicting_field",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of"
+          ]
+        },
+        {
+          "id": "t1_inconsistent_maturity",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_same",
+          "gold": "same",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_different_account",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_different_owner",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_different_bank",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_newer",
+          "gold": "update",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_older",
+          "gold": "historical",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_conflict",
+          "gold": "conflict",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_conflicting_field",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "t2_inconsistent_maturity",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of",
+            "principal"
+          ]
+        }
+      ]
+    },
+    {
+      "method": "ml",
+      "name": "NestProof ML + role guard",
+      "n": 48,
+      "correct": 39,
+      "false_merges": 0,
+      "same_decisions": 2,
+      "review": 33,
+      "p95_ms": 11.706811950352858,
+      "failures": [
+        {
+          "id": "t2_same",
+          "gold": "same",
+          "prediction": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_different_account",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_different_owner",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_different_bank",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_newer",
+          "gold": "update",
+          "prediction": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_older",
+          "gold": "historical",
+          "prediction": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_conflict",
+          "gold": "conflict",
+          "prediction": "review",
+          "missing": [
+            "principal"
+          ]
+        },
+        {
+          "id": "t2_conflicting_field",
+          "gold": "blocked",
+          "prediction": "conflict",
+          "missing": []
+        },
+        {
+          "id": "t2_inconsistent_maturity",
+          "gold": "blocked",
+          "prediction": "review",
+          "missing": [
+            "principal"
+          ]
+        }
+      ]
+    }
+  ],
+  "limitations": "Development regression set used to diagnose role errors; shared exclusion rules were added after inspection. Small developer-authored synthetic set; same author as training data. No real-user or real-bank validation. Test labels were not used to select the model threshold. PDF layouts share a generator. Latency is local warm inference, not a service SLA."
+}

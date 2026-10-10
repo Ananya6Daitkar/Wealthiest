@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-10T08:58:25.522413+00:00",
+  "generated_at": "2026-10-10T14:25:58.592116+00:00",
   "model": {
     "name": "TF-IDF word/character + logistic regression",
     "training_labels": 85,
@@ -12,7 +12,7 @@
   },
   "platform": "macOS-26.0.1-arm64-arm-64bit",
   "python": "3.12.14",
-  "evaluation_status": "Development regression: cases were inspected before adding shared role guards. Not an untouched final test.",
+  "evaluation_status": "Development regression: cases were inspected before adding shared role constraints. Not an untouched final test.",
   "fuzzy_threshold": 0.775,
   "test_sha256": "0d86f966610579fd5d55e923f2e29cb36600715f5344f59953cb6caa6d29592e",
   "label_cases": 64,
@@ -21,11 +21,11 @@
       "method": "exact",
       "name": "Exact dictionary + role guard",
       "n": 64,
-      "correct": 16,
-      "accepted": 0,
-      "precision": null,
-      "coverage": 0.0,
-      "p95_ms": 0.04986864623788278,
+      "correct": 29,
+      "accepted": 13,
+      "precision": 1.0,
+      "coverage": 0.2708333333333333,
+      "p95_ms": 0.04373124829726294,
       "failures": [
         {
           "label": "Reference of depositor",
@@ -196,54 +196,6 @@
           "score": 0.0
         },
         {
-          "label": "Original capital deposited",
-          "gold": "principal",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Opening invested capital",
-          "gold": "principal",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Maturity redemption amount",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Expected maturity proceeds",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Payout amount at maturity",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Sum payable on maturity",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Deposit maturity proceeds",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Value on expiry",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
           "label": "FD maturity date",
           "gold": "maturity_date",
           "prediction": "ignore",
@@ -280,37 +232,7 @@
           "score": 0.0
         },
         {
-          "label": "Account currency code",
-          "gold": "currency",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Currency denomination code",
-          "gold": "currency",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
           "label": "Deposit monetary unit",
-          "gold": "currency",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Principal denomination",
-          "gold": "currency",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Currency of deposit",
-          "gold": "currency",
-          "prediction": "ignore",
-          "score": 0.0
-        },
-        {
-          "label": "Monetary currency",
           "gold": "currency",
           "prediction": "ignore",
           "score": 0.0
@@ -321,11 +243,11 @@
       "method": "fuzzy",
       "name": "Calibrated fuzzy + role guard (0.775)",
       "n": 64,
-      "correct": 32,
-      "accepted": 17,
-      "precision": 0.9411764705882353,
-      "coverage": 0.3541666666666667,
-      "p95_ms": 1.4124106033705175,
+      "correct": 39,
+      "accepted": 24,
+      "precision": 0.9583333333333334,
+      "coverage": 0.5,
+      "p95_ms": 1.4209954551915869,
       "failures": [
         {
           "label": "Reference of depositor",
@@ -448,30 +370,6 @@
           "score": 0.74419
         },
         {
-          "label": "Opening invested capital",
-          "gold": "principal",
-          "prediction": "ignore",
-          "score": 0.625
-        },
-        {
-          "label": "Maturity redemption amount",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.73171
-        },
-        {
-          "label": "Payout amount at maturity",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.66667
-        },
-        {
-          "label": "Value on expiry",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.5641
-        },
-        {
           "label": "Scheduled redemption date",
           "gold": "maturity_date",
           "prediction": "ignore",
@@ -496,28 +394,10 @@
           "score": 0.64286
         },
         {
-          "label": "Currency denomination code",
-          "gold": "currency",
-          "prediction": "ignore",
-          "score": 0.66667
-        },
-        {
           "label": "Deposit monetary unit",
           "gold": "currency",
           "prediction": "ignore",
           "score": 0.76471
-        },
-        {
-          "label": "Principal denomination",
-          "gold": "currency",
-          "prediction": "ignore",
-          "score": 0.70588
-        },
-        {
-          "label": "Currency of deposit",
-          "gold": "currency",
-          "prediction": "ignore",
-          "score": 0.75
         }
       ]
     },
@@ -525,31 +405,12 @@
       "method": "ml",
       "name": "NestProof ML + role guard",
       "n": 64,
-      "correct": 61,
-      "accepted": 46,
-      "precision": 0.9782608695652174,
-      "coverage": 0.9583333333333334,
-      "p95_ms": 0.6123545052105328,
-      "failures": [
-        {
-          "label": "Opening invested capital",
-          "gold": "principal",
-          "prediction": "ignore",
-          "score": 0.50084
-        },
-        {
-          "label": "Value on expiry",
-          "gold": "maturity_value",
-          "prediction": "ignore",
-          "score": 0.41779
-        },
-        {
-          "label": "Principal denomination",
-          "gold": "currency",
-          "prediction": "principal",
-          "score": 0.47467
-        }
-      ]
+      "correct": 64,
+      "accepted": 48,
+      "precision": 1.0,
+      "coverage": 1.0,
+      "p95_ms": 0.7083580476319181,
+      "failures": []
     }
   ],
   "pairs": [
@@ -557,11 +418,11 @@
       "method": "exact",
       "name": "Exact dictionary + role guard",
       "n": 48,
-      "correct": 30,
+      "correct": 33,
       "false_merges": 0,
       "same_decisions": 1,
       "review": 41,
-      "p95_ms": 3.302608099693316,
+      "p95_ms": 3.460199904293404,
       "failures": [
         {
           "id": "t1_same",
@@ -572,8 +433,7 @@
             "account_id",
             "institution",
             "as_of",
-            "principal",
-            "currency"
+            "principal"
           ]
         },
         {
@@ -585,8 +445,7 @@
             "account_id",
             "institution",
             "as_of",
-            "principal",
-            "currency"
+            "principal"
           ]
         },
         {
@@ -598,8 +457,7 @@
             "account_id",
             "institution",
             "as_of",
-            "principal",
-            "currency"
+            "principal"
           ]
         },
         {
@@ -611,8 +469,7 @@
             "account_id",
             "institution",
             "as_of",
-            "principal",
-            "currency"
+            "principal"
           ]
         },
         {
@@ -624,8 +481,7 @@
             "account_id",
             "institution",
             "as_of",
-            "principal",
-            "currency"
+            "principal"
           ]
         },
         {
@@ -637,8 +493,7 @@
             "account_id",
             "institution",
             "as_of",
-            "principal",
-            "currency"
+            "principal"
           ]
         },
         {
@@ -650,20 +505,7 @@
             "account_id",
             "institution",
             "as_of",
-            "principal",
-            "currency"
-          ]
-        },
-        {
-          "id": "t1_conflicting_field",
-          "gold": "blocked",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "currency"
+            "principal"
           ]
         },
         {
@@ -675,8 +517,7 @@
             "account_id",
             "institution",
             "as_of",
-            "principal",
-            "currency"
+            "principal"
           ]
         },
         {
@@ -687,9 +528,7 @@
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal",
-            "currency"
+            "as_of"
           ]
         },
         {
@@ -700,9 +539,7 @@
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal",
-            "currency"
+            "as_of"
           ]
         },
         {
@@ -713,9 +550,7 @@
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal",
-            "currency"
+            "as_of"
           ]
         },
         {
@@ -726,9 +561,7 @@
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal",
-            "currency"
+            "as_of"
           ]
         },
         {
@@ -739,9 +572,7 @@
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal",
-            "currency"
+            "as_of"
           ]
         },
         {
@@ -752,9 +583,7 @@
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal",
-            "currency"
+            "as_of"
           ]
         },
         {
@@ -765,34 +594,7 @@
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal",
-            "currency"
-          ]
-        },
-        {
-          "id": "t2_conflicting_field",
-          "gold": "blocked",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "currency"
-          ]
-        },
-        {
-          "id": "t2_inconsistent_maturity",
-          "gold": "blocked",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "principal",
-            "currency"
+            "as_of"
           ]
         }
       ]
@@ -801,11 +603,11 @@
       "method": "fuzzy",
       "name": "Calibrated fuzzy + role guard (0.775)",
       "n": 48,
-      "correct": 30,
+      "correct": 33,
       "false_merges": 0,
       "same_decisions": 1,
       "review": 41,
-      "p95_ms": 18.62330405274406,
+      "p95_ms": 15.067371052282397,
       "failures": [
         {
           "id": "t1_same",
@@ -885,16 +687,6 @@
           ]
         },
         {
-          "id": "t1_conflicting_field",
-          "gold": "blocked",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "as_of"
-          ]
-        },
-        {
           "id": "t1_inconsistent_maturity",
           "gold": "blocked",
           "prediction": "review",
@@ -913,85 +705,12 @@
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal"
+            "as_of"
           ]
         },
         {
           "id": "t2_different_account",
           "gold": "separate",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_different_owner",
-          "gold": "separate",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_different_bank",
-          "gold": "separate",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_newer",
-          "gold": "update",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_older",
-          "gold": "historical",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_conflict",
-          "gold": "conflict",
-          "prediction": "review",
-          "missing": [
-            "owner_id",
-            "account_id",
-            "institution",
-            "as_of",
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_conflicting_field",
-          "gold": "blocked",
           "prediction": "review",
           "missing": [
             "owner_id",
@@ -1001,15 +720,58 @@
           ]
         },
         {
-          "id": "t2_inconsistent_maturity",
-          "gold": "blocked",
+          "id": "t2_different_owner",
+          "gold": "separate",
           "prediction": "review",
           "missing": [
             "owner_id",
             "account_id",
             "institution",
-            "as_of",
-            "principal"
+            "as_of"
+          ]
+        },
+        {
+          "id": "t2_different_bank",
+          "gold": "separate",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "t2_newer",
+          "gold": "update",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "t2_older",
+          "gold": "historical",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
+          ]
+        },
+        {
+          "id": "t2_conflict",
+          "gold": "conflict",
+          "prediction": "review",
+          "missing": [
+            "owner_id",
+            "account_id",
+            "institution",
+            "as_of"
           ]
         }
       ]
@@ -1018,84 +780,13 @@
       "method": "ml",
       "name": "NestProof ML + role guard",
       "n": 48,
-      "correct": 39,
+      "correct": 48,
       "false_merges": 0,
-      "same_decisions": 2,
-      "review": 33,
-      "p95_ms": 11.706811950352858,
-      "failures": [
-        {
-          "id": "t2_same",
-          "gold": "same",
-          "prediction": "review",
-          "missing": [
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_different_account",
-          "gold": "separate",
-          "prediction": "review",
-          "missing": [
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_different_owner",
-          "gold": "separate",
-          "prediction": "review",
-          "missing": [
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_different_bank",
-          "gold": "separate",
-          "prediction": "review",
-          "missing": [
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_newer",
-          "gold": "update",
-          "prediction": "review",
-          "missing": [
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_older",
-          "gold": "historical",
-          "prediction": "review",
-          "missing": [
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_conflict",
-          "gold": "conflict",
-          "prediction": "review",
-          "missing": [
-            "principal"
-          ]
-        },
-        {
-          "id": "t2_conflicting_field",
-          "gold": "blocked",
-          "prediction": "conflict",
-          "missing": []
-        },
-        {
-          "id": "t2_inconsistent_maturity",
-          "gold": "blocked",
-          "prediction": "review",
-          "missing": [
-            "principal"
-          ]
-        }
-      ]
+      "same_decisions": 3,
+      "review": 27,
+      "p95_ms": 10.053875001176493,
+      "failures": []
     }
   ],
-  "limitations": "Development regression set used to diagnose role errors; shared exclusion rules were added after inspection. Small developer-authored synthetic set; same author as training data. No real-user or real-bank validation. Test labels were not used to select the model threshold. PDF layouts share a generator. Latency is local warm inference, not a service SLA."
+  "limitations": "Development regression set used to diagnose role errors; shared exclusion and compositional role rules were added after inspection. Small developer-authored synthetic set; same author as training data. No real-user or real-bank validation. Test labels were not used to select the model threshold. PDF layouts share a generator. Latency is local warm inference, not a service SLA."
 }

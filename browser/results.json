@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "PDF upload opens a first-observation review",
+    "Preview requires explicit confirmation before commit",
+    "Ledger exposes a decision receipt and undo"
+  ],
+  "passed": 3,
+  "scope": "Real browser upload, preview, commit and undo. API tests cover receipt authorization and other edge cases.",
+  "date": "2026-10-10"
+}
