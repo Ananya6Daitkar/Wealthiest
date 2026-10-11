@@ -1,0 +1,14 @@
+# Facilitator: run the study today
+
+Status: ready for collection; **zero observed sessions recorded**. Participants, not automated agents, must perform the tasks. These developer-authored tasks test usability, not independent document generalization.
+
+1. Obtain consent using `README.md`; assign P01–P08 without collecting names. Ask another person to review `tasks/ANSWER_KEY.md` before testing. Do not show participants the answer key.
+2. Freeze the build: `.venv/bin/python -m evaluation.external freeze --out .runtime/validation/study-freeze.json`. If that file exists, retain it and choose a new filename. Do not change the build during sessions.
+3. Odd participants: manual A, then NestProof B. Even participants: NestProof A, then manual B. Use all four cases in each condition. Give a practice task before timing, excluded from results. Practice with the existing Earlier quarter statement and explain only the controls.
+4. Manual condition: give the participant `tasks/ANCHOR.txt`, the assigned case TXT and `tasks/REFERENCE_CARD.md`. Record proposed action, supporting evidence and final family principal on paper. A calculator is allowed in both conditions.
+5. App condition: for **each case**, run `.venv/bin/python validation/start_session.py P01 new` (substitute actual alias and case). Open http://127.0.0.1:8769, select Ananya, upload the assigned TXT with family visibility. The initial family principal is INR 400,000. Stop the server with Ctrl-C after the case; the next case starts a different preserved DB. Do not use the shared Render workspace for this comparison.
+6. Say: “Decide how these fictional documents should change the ledger. You can add a holding, attach evidence, resolve a contradiction only with sufficient support, or leave it unresolved. Tell me what evidence supports your decision.” Do not suggest the correct answer. Give the reference card in both conditions; log any extra help.
+7. Start a timer when the source is presented. Stop when the participant states their final decision (and finishes any app confirmation). Cap each task at six minutes. Record incorrect and abandoned attempts too. Screenshot or note any failure using synthetic content only; record exact reproduction steps.
+8. Copy `session-record.example.json` into `.runtime/validation/study/P01.json` and record eight task rows. Add the actual freeze hash. Keep missing observations null; no estimates from memory. Log consent and practice separately. Keep completed files local until anonymized and reviewed.
+
+Send the completed records back in this chat or save them in the directory above and say they are ready. We can then compare correct decisions/all tasks, wrong acceptances, and paired times; prioritize the highest-consequence reproducible failure; preserve before results; and retest the fix using new, independently reviewed material. Do not claim the study happened until those records exist.

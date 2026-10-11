@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import base64
+import binascii
 import hashlib
 import json
 import os
@@ -88,6 +90,9 @@ def create_app(db_path=None):
     path = Path(db_path or os.environ.get('NESTPROOF_DB', ROOT / '.runtime/nestproof.db'))
     path.parent.mkdir(parents=True, exist_ok=True)
     app = FastAPI(title='NestProof', version='0.1.0', docs_url='/api/docs')
+    demo_password = os.environ.get('NESTPROOF_DEMO_PASSWORD', '')
+    if os.environ.get('RENDER') and not demo_password:
+        raise RuntimeError('Render demo requires NESTPROOF_DEMO_PASSWORD')
 
     @contextmanager
     def db(write=False):
@@ -123,7 +128,23 @@ def create_app(db_path=None):
 
     @app.middleware('http')
     async def security_headers(request, call_next):
-        response = await call_next(request)
+        authorized = not demo_password
+        if demo_password:
+            try:
+                scheme, encoded = request.headers.get('authorization', '').split(' ', 1)
+                username, password = base64.b64decode(encoded, validate=True).decode('utf-8').split(':', 1)
+                authorized = (scheme.lower() == 'basic' and username == 'judge'
+                              and secrets.compare_digest(password.encode(), demo_password.encode()))
+            except (ValueError, UnicodeError, binascii.Error):
+                pass
+        if request.url.path == '/healthz' and request.method == 'GET':
+            response = Response('ok', media_type='text/plain')
+        elif not authorized:
+            response = Response('Demo access required', status_code=401,
+                                headers={'WWW-Authenticate': 'Basic realm="NestProof synthetic demo"',
+                                         'Cache-Control': 'no-store'})
+        else:
+            response = await call_next(request)
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['Referrer-Policy'] = 'no-referrer'
         response.headers['X-Frame-Options'] = 'DENY'
@@ -297,7 +318,8 @@ def create_app(db_path=None):
         with db(True) as c:
             c.execute('DELETE FROM sessions WHERE expires<?', (time.time(),))
             c.execute('INSERT INTO sessions VALUES(?,?,?,?)', (hashlib.sha256(token.encode()).hexdigest(), body.persona, csrf, time.time() + 28800))
-        response.set_cookie('nestproof_session', token, httponly=True, samesite='strict', max_age=28800)
+        response.set_cookie('nestproof_session', token, httponly=True, samesite='strict', max_age=28800,
+                            secure=request.url.scheme == 'https')
         return {'persona': body.persona, 'csrf': csrf, 'notice': 'Synthetic persona switch, not production authentication'}
 
     @app.get('/api/session')

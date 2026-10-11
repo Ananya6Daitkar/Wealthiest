@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: nestproof-demo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.lock.txt
+    startCommand: uvicorn nestproof.app:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips '*'
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.12
+      - key: NESTPROOF_DB
+        value: /tmp/nestproof-demo.db
+      - key: NESTPROOF_DEMO_PASSWORD
+        generateValue: true

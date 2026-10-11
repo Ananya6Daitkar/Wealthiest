@@ -1,0 +1,9 @@
+SYNTHETIC study set B
+Owner reference: PERSON-ANANYA
+Certificate reference number: ****1007
+Bank identifier: NORTHSTAR
+As of: 2026-09-30
+Principal: INR 4,00,000.00
+Currency: INR
+Maturity amount: INR 4,32,000.00
+Maturity date: 2027-09-30
