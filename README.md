@@ -8,7 +8,7 @@ A deposit certificate and a later statement can describe the same asset. NestPro
 
 [Submission case study](docs/TRACK_C_SUBMISSION.md) · [Download Word submission](submission/NestProof_Track_C_Submission.docx) · [Verification record](docs/FINAL_VERIFICATION.md) · [Run locally](#run-locally)
 
-**Deployment preparation:** [Render setup and demo access](docs/DEPLOYMENT.md). A verified live URL will be added after deployment succeeds.
+**Hosted demo:** [Open NestProof](https://nestproof-demo.onrender.com/) · [Demo access and hosting limitations](docs/DEPLOYMENT.md). Password-protected synthetic workspace; username `judge`, password supplied privately by the project owner. Free hosting can take 50+ seconds to wake. Health and unauthenticated access verified on 11 October 2026; hosted authenticated workflow verification is still pending.
 
 **External validation:** [Run the participant study](validation/RUN_TODAY.md) · [Public WealthNest context evidence](docs/PUBLIC_VALIDATION_EVIDENCE.md). No observed participant results are claimed yet. Latest local suite: **84 passed** (74 application checks, 8 evaluation-runner checks, 2 hosted-access checks).
 
