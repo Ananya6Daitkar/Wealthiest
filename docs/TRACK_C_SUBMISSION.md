@@ -2,7 +2,7 @@
 
 **Track C: Document Intelligence + Evaluation & Reliability.** Working local prototype, 10 October 2026. NestProof is not a WealthGPT chatbot. The challenge offers several directions; this submission deliberately solves one bounded problem.
 
-**Submission files:** [two-page Word case study](../submission/NestProof_Track_C_Submission.docx) · [GitHub repository](https://github.com/Ananya6Daitkar/Wealthiest). The Word case study follows the five deliverable sections; this technical companion answers the eight Track C questions.
+**Submission files:** [Word case study with visual appendix](../submission/NestProof_Track_C_Submission.docx) · [GitHub repository](https://github.com/Ananya6Daitkar/Wealthiest). The Word case study follows the five deliverable sections; this technical companion answers the eight Track C questions.
 
 ## 1. What problem did we identify?
 
@@ -31,6 +31,8 @@ Current scope: synthetic, English, labeled digital fixed-deposit documents; INR;
 A real integration would need consented diverse institution formats, independently adjudicated field/relationship labels, real authorization, retention controls and failure monitoring. None is represented as already acquired.
 
 ## 5. What is the architecture?
+
+![Implemented NestProof architecture](ARCHITECTURE.png)
 
 ```mermaid
 flowchart TD
