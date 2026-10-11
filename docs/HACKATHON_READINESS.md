@@ -71,3 +71,7 @@ This is an explicit planning rubric, not WealthNest's official scoring or a pred
 | **Weighted total** | **100** | **81.5** | **85.0** | Subjective estimates under this stated rubric |
 
 Earlier conversational estimates used no fixed weighting and should not be compared as measured improvements. More features alone do not justify 99+. Independent document adjudication and observed user tasks are the next meaningful evidence gains.
+
+## Validation tooling follow-up
+
+The [validation kit](../validation/README.md) is now available, with eight additional runner tests (82 total automated tests). It checks code/runtime fingerprints, compares all three methods, retains parser failures and rejects report overwrite. This is infrastructure, not independent evidence. The estimated score is unchanged pending external documents and observed participant sessions.

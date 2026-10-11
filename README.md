@@ -114,6 +114,10 @@ The [browser harness](browser/regression.mjs) uses the Codex browser Tab API; it
 - **Implementation:** [Product walkthrough](WHAT_WE_BUILT.md) and [verification](docs/FINAL_VERIFICATION.md).
 - **Research archive:** [Research and design](docs/RESEARCH_AND_DESIGN.md), [early case study](docs/CASE_STUDY.md) and [implementation decisions](docs/IMPLEMENTATION_STRATEGY.md). These preserve historical proposals and estimates, not current claims.
 
+## Independent validation kit
+
+The [assessor and participant pack](validation/README.md) includes a frozen-build evaluator, gold-label schema, counterbalanced study protocol and blank observation record. Run `python -m evaluation.external --help` for the CLI. **No independent assessor or participant results have been collected.** The full suite now passes 82 tests: 74 application tests plus 8 evaluation-runner tests. Recorded browser results are unchanged.
+
 ## Boundaries and next validation
 
 One English labeled INR deposit per digital document; no OCR, bank connection, authenticity verification, production identity system, financial transactions or investment recommendations. A receipt is an audit export, not a cryptographic attestation.

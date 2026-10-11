@@ -1,0 +1,11 @@
+{
+  "status": "blank template, not an observed session",
+  "participant_alias": "P01",
+  "consent_obtained": null,
+  "build_freeze_sha256": null,
+  "order": "manual-A then nestproof-B",
+  "time_cap_seconds": 360,
+  "tasks": [{"case_id": null, "condition": null, "task_set": null, "elapsed_seconds": null, "completed": null, "timed_out": null, "final_action": null, "final_principal": null, "correct": null, "wrong_acceptance": null, "unresolved": null, "clarifications": null, "facilitator_help": null, "adjudicator_alias": null}],
+  "observations": [],
+  "limitations": []
+}

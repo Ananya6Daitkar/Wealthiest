@@ -1,0 +1,9 @@
+{
+  "authorship": "REPLACE with assessor alias, role and creation date; do not include personal data",
+  "cases": [{
+    "id": "assessor-case-01",
+    "relation": "same",
+    "left": {"file": "anchor.pdf", "facts": {"owner_id": "PERSON-FICTIONAL", "account_id": "FD-EXAMPLE", "institution": "FICTIONALBANK", "as_of": "2026-09-30", "principal": "100000.00", "currency": "INR", "maturity_value": null, "maturity_date": null}},
+    "right": {"file": "incoming.pdf", "facts": {"owner_id": "PERSON-FICTIONAL", "account_id": "FD-EXAMPLE", "institution": "FICTIONALBANK", "as_of": "2026-09-30", "principal": "100000.00", "currency": "INR", "maturity_value": null, "maturity_date": null}}
+  }]
+}
