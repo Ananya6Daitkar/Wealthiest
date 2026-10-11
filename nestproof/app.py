@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -70,6 +71,12 @@ class Compare(StrictModel):
 class Clarify(StrictModel):
     value: str = Field(min_length=1, max_length=100)
     note: str = Field(min_length=5, max_length=500)
+    version: int
+
+
+class DecisionChallenge(StrictModel):
+    field: str
+    value: str | None = Field(default=None, max_length=100)
     version: int
 
 
@@ -429,6 +436,38 @@ def create_app(db_path=None):
     def get_compare(cid: str, user=Depends(session)):
         with db() as c:
             return view_comparison(c, cid, user['persona'])
+
+    @app.post('/api/comparisons/{cid}/challenge')
+    def challenge(cid: str, body: DecisionChallenge, user=Depends(session)):
+        # Deliberately read-only: hypothetical facts never become evidence,
+        # previews, observations or answers, and cannot authorize a commit.
+        with db() as c:
+            row, _, _, left, right, actual, _ = comparison(c, cid, user['persona'])
+            current = c.execute('SELECT revision FROM ledger WHERE scope=?', (row['scope'],)).fetchone()
+            if body.version != row['version'] or current['revision'] != row['ledger_revision']:
+                raise HTTPException(409, 'Review or ledger changed. Open the source again before challenging it.')
+            if body.field not in FIELD_NAMES:
+                raise HTTPException(422, 'Choose a supported interpreted field')
+            simulated = copy.deepcopy(right)
+            original = simulated['facts'].get(body.field)
+            if body.value is None:
+                simulated['facts'].pop(body.field, None)
+                value = None
+            else:
+                try:
+                    value = normalize(body.field, body.value)
+                except ValueError as exc:
+                    raise HTTPException(422, str(exc)) from exc
+                simulated['facts'][body.field] = value
+            facts = simulated['facts']
+            if facts.get('maturity_value') and facts.get('principal') and Decimal(facts['maturity_value']) < Decimal(facts['principal']):
+                simulated['flags'].append({'code': 'amount_inconsistency'})
+            result = reconcile(left, simulated)
+            return {'mode': 'hypothetical_interpreted_fact', 'field': body.field,
+                    'original_value': original, 'simulated_value': value,
+                    'actual': actual, 'hypothetical': result,
+                    'ledger_revision': current['revision'], 'persisted': False,
+                    'notice': 'Rule-engine sensitivity check on this source pair, not a new extraction, ledger-wide match or accepted correction. Existing source flags remain in force. No ledger or source was changed.'}
 
     @app.post('/api/comparisons/{cid}/clarify')
     def clarify(cid: str, body: Clarify, user=Depends(session)):

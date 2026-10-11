@@ -53,7 +53,7 @@ FastAPI serves the API and vanilla JavaScript frontend. SQLite serializes writes
 
 ## 6. How do we evaluate it?
 
-- **64 automated tests pass**, including permission boundaries, stale state, conflict handling, receipt access and typed financial roles.
+- **74 automated tests pass**, including permission boundaries, stale state, conflict handling, receipt access and typed financial roles.
 - A reusable browser regression executed upload, preview gating, commit, receipt-link availability and undo: **3 grouped checks passed**.
 - Original development regression: **64/64 label classifications and 48/48 PDF-pair relations correct** after iterative fixes. These cases informed development and are not independent validation.
 - Fresh developer-authored challenge: **30/30 ML/rules relations correct**, versus 11/30 exact/rules and 12/30 fuzzy/rules. Three wording variants, reversed field order/capitalization and ten conditions; same author and PDF generator. No tuning followed the first run. No real-bank accuracy claim.
@@ -72,6 +72,12 @@ A receipt is a local audit export, not a cryptographic attestation. Synthetic pe
 Keep evidence, model interpretation and user assertions separate. Validate roles and amounts, abstain on missing/contradictory evidence, scope matching to accepted visible records, require confirmation, reject stale decisions, preserve revisions and allow undo. Recheck current permissions even for historical receipts. Run regression tests and inspect failures rather than optimizing a headline score.
 
 Before deployment: independently labeled document pilots, measured user tasks, appropriate identity/storage controls and WealthNest engineering review. Proposed integration point: a review step after document extraction and before canonical holdings updates. WealthGPT could later consume accepted observations and provenance, but no chatbot or retrieval integration is implemented.
+
+## Decision challenge added on 11 October
+
+A read-only panel lets judges change one interpreted incoming field or remove it and rerun the same relation engine. A one-paisa discrepancy becomes a conflict; removing identity becomes review. The API persists nothing and cannot issue a commit preview. It checks actor, source access, review version and ledger revision. This is pairwise sensitivity analysis, not model explanation or a second extraction benchmark.
+
+Same-date maturity amount/date disagreements now also require explicit review. UI money retains paise. [Audit, test evidence and estimated rubric](HACKATHON_READINESS.md) · [Live pitch and recovery](JUDGE_DEMO.md).
 
 ## Judge-controlled demonstration
 

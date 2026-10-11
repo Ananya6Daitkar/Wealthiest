@@ -1,10 +1,12 @@
+> 11 October update: 74 tests now pass; the three browser groups were rerun and two decision-challenge scenarios were verified. See [the readiness audit](HACKATHON_READINESS.md) for fixes, responsive checks and limits. The original 30-case challenge is preserved; its current-engine rerun is `evaluation/challenge-regression-results.json`.
+
 # Final verification and experiment record
 
 10 October 2026. The prototype focuses on Track C document intelligence, not WealthGPT.
 
 | Check | Executed result |
 |---|---|
-| API/engine tests | 64 passed; one dependency deprecation warning |
+| API/engine tests | 74 passed; one dependency deprecation warning |
 | JavaScript syntax | Passed |
 | Browser regression | 3 grouped checks: upload/review, explicit preview confirmation/commit, receipt link/history/undo |
 | Development labels | ML plus shared role constraints 64/64 |

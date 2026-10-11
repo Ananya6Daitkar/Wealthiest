@@ -379,3 +379,67 @@ def test_maturity_tracker_handles_accepted_fd_without_maturity_date(client):
     assert tracker['positions'][0]['projected_proceeds']=='130000.00'
     assert tracker['summary']['date_unavailable']==1
     assert tracker['summary']['projected_proceeds']=='562000.00'
+
+@pytest.mark.parametrize('field,value,relation',[
+    ('principal','400000.01','conflict'),
+    ('account_id',None,'review'),
+    ('account_id','FD-OTHER','separate'),
+    ('maturity_value','440000','conflict'),
+    ('maturity_value','100','blocked'),
+    ('maturity_date','2028-09-30','conflict'),
+])
+def test_decision_challenge_is_read_only(client, field, value, relation):
+    c=client; docs=seed(c); review=compare(c,docs,'clarify')
+    review=c.post('/api/comparisons/'+review['id']+'/clarify',json={'value':'FD-1007','note':'Synthetic certificate check','version':0}).json()
+    before=c.get('/api/ledger').json()
+    r=c.post('/api/comparisons/'+review['id']+'/challenge',json={'field':field,'value':value,'version':review['version']})
+    assert r.status_code==200,r.text
+    assert r.json()['hypothetical']['relation']==relation
+    assert r.json()['persisted'] is False
+    assert 'id' not in r.json() # Cannot masquerade as a commit preview.
+    assert c.get('/api/ledger').json()==before
+    actual=c.get('/api/comparisons/'+review['id']).json()
+    assert actual['result']['relation']=='same'
+    assert actual['answers']==review['answers']
+    assert preview(c,actual)['effect']['delta']=='0.00'
+
+
+def test_challenge_access_and_stale_state(client):
+    c=client; docs=seed(c); review=compare(c,docs,'clarify')
+    url='/api/comparisons/'+review['id']+'/challenge'
+    body={'field':'principal','value':'410000','version':0}
+    assert c.post(url,json=body|{'field':'untrusted'}).status_code==422
+    assert c.post(url,json=body|{'value':'-1'}).status_code==422
+    assert c.post(url,json=body|{'version':9}).status_code==409
+    assert c.post(url,json=body,headers={'X-NestProof-CSRF':'wrong'}).status_code==403
+    login(c,'ravi');assert c.post(url,json=body).status_code==404
+    login(c);commit(c,preview(c,compare(c,docs,'new')))
+    assert c.post(url,json=body).status_code==409
+
+
+def test_challenge_respects_revoked_source_and_quarantine(client):
+    c=client; docs=seed(c); review=compare(c,docs,'attack')
+    body={'field':'principal','value':'400000','version':0}
+    url='/api/comparisons/'+review['id']+'/challenge'
+    assert c.post(url,json=body).json()['hypothetical']['relation']=='blocked'
+    c.post('/api/documents/'+docs['attack']['id']+'/revoke')
+    assert c.post(url,json=body).status_code==404
+
+
+@pytest.mark.parametrize('line,replacement',[
+    ('Maturity amount: INR 4,32,000.00','Maturity amount: INR 4,40,000.00'),
+    ('Maturity date: 2027-09-30','Maturity date: 2028-09-30'),
+])
+def test_same_date_maturity_conflict_requires_explicit_choice(client,line,replacement):
+    c=client;docs=seed(c);lines=scenarios()[0][1]
+    incoming=upload(c,[s.replace(line,replacement) for s in lines],visibility='family').json()['document']
+    r=c.post('/api/comparisons',json={'right_id':incoming['id']}).json()
+    assert r['result']['relation']=='conflict'
+    assert c.post('/api/comparisons/'+r['id']+'/preview').status_code==409
+    r=c.post('/api/comparisons/'+r['id']+'/clarify',json={'value':'use_incoming','note':'Synthetic original checked','version':0}).json()
+    p=preview(c,r);assert p['effect']['delta']=='0.00'
+    event=commit(c,p)
+    facts=c.get('/api/ledger').json()['positions'][0]
+    assert facts['maturity_value']=='440000.00' if 'amount' in line else facts['maturity_date']=='2028-09-30'
+    assert c.post('/api/events/'+str(event['event_id'])+'/undo').status_code==200
+    assert c.get('/api/ledger').json()['positions'][0]['maturity_date']=='2027-09-30'

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-10T14:25:58.592116+00:00",
+  "generated_at": "2026-10-11T03:14:18.965337+00:00",
   "model": {
     "name": "TF-IDF word/character + logistic regression",
     "training_labels": 85,
@@ -25,7 +25,7 @@
       "accepted": 13,
       "precision": 1.0,
       "coverage": 0.2708333333333333,
-      "p95_ms": 0.04373124829726294,
+      "p95_ms": 0.056939395290100905,
       "failures": [
         {
           "label": "Reference of depositor",
@@ -247,7 +247,7 @@
       "accepted": 24,
       "precision": 0.9583333333333334,
       "coverage": 0.5,
-      "p95_ms": 1.4209954551915869,
+      "p95_ms": 1.4048500532226171,
       "failures": [
         {
           "label": "Reference of depositor",
@@ -409,7 +409,7 @@
       "accepted": 48,
       "precision": 1.0,
       "coverage": 1.0,
-      "p95_ms": 0.7083580476319181,
+      "p95_ms": 0.6637482008954975,
       "failures": []
     }
   ],
@@ -422,7 +422,7 @@
       "false_merges": 0,
       "same_decisions": 1,
       "review": 41,
-      "p95_ms": 3.460199904293404,
+      "p95_ms": 3.1504858445259742,
       "failures": [
         {
           "id": "t1_same",
@@ -607,7 +607,7 @@
       "false_merges": 0,
       "same_decisions": 1,
       "review": 41,
-      "p95_ms": 15.067371052282397,
+      "p95_ms": 14.29086490534246,
       "failures": [
         {
           "id": "t1_same",
@@ -784,7 +784,7 @@
       "false_merges": 0,
       "same_decisions": 3,
       "review": 27,
-      "p95_ms": 10.053875001176493,
+      "p95_ms": 9.514583450800274,
       "failures": []
     }
   ],

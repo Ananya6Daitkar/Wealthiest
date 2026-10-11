@@ -253,6 +253,12 @@ def reconcile(left, right):
         return {'relation': 'update' if newer else 'historical',
                 'title': 'A newer observation' if newer else 'An earlier observation',
                 'reason': 'Same deposit, different effective dates. Preserve both observations without adding the deposit twice.', 'missing': []}
+    maturity_conflicts = [f for f in ('maturity_value', 'maturity_date')
+                          if a.get(f) is not None and b.get(f) is not None and a[f] != b[f]]
+    if maturity_conflicts:
+        return {'relation': 'conflict', 'title': 'Maturity evidence disagrees',
+                'reason': 'Same deposit and statement date, but different ' + ', '.join(FIELD_NAMES[f] for f in maturity_conflicts) + '. Review the complete observation explicitly.',
+                'missing': []}
     if Decimal(a['principal']) != Decimal(b['principal']):
         return {'relation': 'conflict', 'title': 'Two values for the same date',
                 'reason': 'The deposit identity and effective date agree, but principal amounts disagree. A user decision is required.', 'missing': []}

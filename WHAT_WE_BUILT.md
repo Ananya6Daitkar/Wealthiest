@@ -1,6 +1,6 @@
 # What we actually built — NestProof
 
-**Updated: 10 October 2026.** Start with [the concise Track C submission](docs/TRACK_C_SUBMISSION.md) and [final verification](docs/FINAL_VERIFICATION.md). Current build: 64 automated tests and 3 grouped browser checks pass; 64/64 development labels, 48/48 development pairs and 30/30 fresh synthetic challenge pairs. These are developer-authored tests, not independent bank-document accuracy. Earlier measurements below are historical.
+**Updated: 10 October 2026.** Start with [the concise Track C submission](docs/TRACK_C_SUBMISSION.md) and [final verification](docs/FINAL_VERIFICATION.md). Current build: 74 automated tests and 3 grouped browser checks pass; 64/64 development labels, 48/48 development pairs and 30/30 fresh synthetic challenge pairs. These are developer-authored tests, not independent bank-document accuracy. Earlier measurements below are historical.
 
 This is **Document Intelligence + Evaluation & Reliability**, not a WealthGPT chatbot. The frontend now includes targeted disambiguation, preview/confirmation, history/undo, downloadable JSON decision receipts and an Evidence lab with policy and challenge results. No guaranteed win or 99+ score is claimed.
 
@@ -61,7 +61,7 @@ Source revocation is available through the API, not a dedicated interface button
 
 | Evidence | Recorded result | What it establishes |
 |---|---|---|
-| Automated tests | 64 passed | Supported engine, API, permission and maturity-tracker paths |
+| Automated tests | 74 passed | Supported engine, API, permission and maturity-tracker paths |
 | Browser regression | 3 grouped checks passed | Upload, confirmation, commit, history, receipt link and undo |
 | Development labels | 64/64 | Regression behavior after iterative fixes |
 | Development PDF pairs | ML/rules 48/48; exact/rules and fuzzy/rules 33/48 | Comparison under shared role constraints |

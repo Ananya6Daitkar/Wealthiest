@@ -10,7 +10,7 @@ A deposit certificate and a later statement can describe the same asset. NestPro
 
 | Working prototype | Recorded verification | Supported scope |
 |---|---|---|
-| Upload → evidence → clarification → preview → confirm → undo | 64 automated tests; 3 grouped browser checks | English digital PDF/TXT · INR fixed deposits · local execution |
+| Upload → evidence → clarification → preview → confirm → undo | 74 automated tests; 3 grouped browser checks | English digital PDF/TXT · INR fixed deposits · local execution |
 
 ## See the product
 
@@ -28,6 +28,14 @@ A deposit certificate and a later statement can describe the same asset. NestPro
 These captures use different synthetic sessions. Their principal totals and revisions need not match. Evaluation claims are dated records, not a live CI badge.
 
 </details>
+
+## Challenge the decision live
+
+![Actual read-only one-paisa decision challenge](docs/DECISION_CHALLENGE.jpg)
+
+In any source comparison, open **Challenge this decision**. Change principal by one paisa or remove the deposit reference. The same relation engine explains the hypothetical result, while the actual evidence and ledger remain unchanged. This tests interpreted facts on the selected pair; it does not rerun extraction or search all holdings.
+
+[Audit and scoring rubric](docs/HACKATHON_READINESS.md) · [Pitch, judge questions and recovery guide](docs/JUDGE_DEMO.md)
 
 ## What makes the workflow useful
 
@@ -55,7 +63,7 @@ The diagram describes a single local application, not separately deployed servic
 
 | Check | Recorded result | Interpretation |
 |---|---|---|
-| Automated suite | 64 passed | Supported API, engine, access and maturity paths |
+| Automated suite | 74 passed | Supported API, engine, access and maturity paths |
 | Browser regression | 3 grouped checks passed | Upload, confirmation, commit, receipt link, history and undo |
 | Development regression | 64/64 labels; 48/48 ML/rules pairs | Cases inspected during development |
 | Fresh synthetic challenge | ML/rules 30/30; exact/rules 11/30; fuzzy/rules 12/30 | Same author and generator; not independent validation |

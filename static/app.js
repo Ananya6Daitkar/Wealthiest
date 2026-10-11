@@ -2,7 +2,7 @@
 const $ = (s) => document.querySelector(s);
 const escapeHTML = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const E = escapeHTML;
-const money = value => new Intl.NumberFormat('en-IN', {style:'currency',currency:'INR',maximumFractionDigits:0}).format(Number(value || 0));
+const money = value => new Intl.NumberFormat('en-IN', {style:'currency',currency:'INR',minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(value || 0));
 const fieldNames = {owner_id:'Holder reference',account_id:'Deposit reference',institution:'Institution',as_of:'Effective date',principal:'Principal',currency:'Currency',maturity_value:'Maturity proceeds',maturity_date:'Maturity date'};
 const labels = {workspace:'Import review',history:'Ledger & history',maturities:'FD maturity tracker',evaluation:'Evidence lab',about:'How it works'};
 const maturityLabels = {maturing_soon:'Maturing Soon',upcoming:'Upcoming',matured:'Matured',date_unavailable:'Date unavailable'};
@@ -35,7 +35,7 @@ function renderStats() {
   <div class="stat"><div class="stat-label">Ledger revision</div><div class="stat-value">${String(state.ledger?.current_revision||0).padStart(2,'0')}</div><div class="stat-foot">Changes recorded. Earlier versions preserved.</div><span class="stat-icon">↶</span></div>`;
 }
 function render() {
-  document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
+  document.querySelectorAll('.nav').forEach(b=>{b.classList.toggle('active',b.dataset.view===state.view);if(b.dataset.view===state.view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   $('#page-crumb').textContent=labels[state.view];
   if(state.view==='workspace')renderWorkspace();
   else if(state.view==='history')renderHistory();
@@ -112,7 +112,7 @@ async function selectDoc(id) {
   $('#review-panel').innerHTML='<div class="panel loading"><span class="busy-indicator">Matching evidence against accepted ledger records…</span></div>';
   try {
     const match=await api('/comparisons',{method:'POST',body:{right_id:id}});
-    if(request!==state.request)return;
+    if(request!==state.request||state.view!=='workspace')return;
     if(match.kind==='new')state.single=match.document;
     else if(match.kind==='unresolved'||match.kind==='represented')state.matchIssue=match;
     else state.comparison=match;
@@ -139,10 +139,22 @@ function bindSingle() {
 function sourceHTML(doc,side) {
   return `<div class="source"><div class="source-head"><span>${side==='left'?'LEDGER SUPPORTING SOURCE':'INCOMING SOURCE'}</span><a href="/api/documents/${E(doc.id)}/source" target="_blank" rel="noopener">Download original ↗</a></div><div class="source-lines">${doc.evidence.map(line=>`<div class="source-line ${state.highlight && line.field===state.highlight?'highlight':''} ${line.status==='quarantined'?'quarantined':''}" data-line="${E(line.id)}"><small>${line.page}.${line.line}</small><span>${E(line.text)}</span></div>`).join('')}</div></div>`;
 }
+function challengeHTML() {
+  return `<details class="decision-challenge"><summary>Challenge this decision <span>What would change the result?</span></summary><p>Change one interpreted fact on this source pair. The same rule engine responds; your evidence and ledger stay unchanged. This does not rerun extraction or search other holdings.</p><form id="challenge-form"><div class="challenge-grid"><label>Incoming field<select id="challenge-field">${Object.entries(fieldNames).map(([value,label])=>`<option value="${value}" ${value==='principal'?'selected':''}>${label}</option>`).join('')}</select></label><label>Hypothetical value<input id="challenge-value" maxlength="100" placeholder="For example 400000.01" required></label></div><label class="confirmation-line"><input type="checkbox" id="challenge-remove">Remove this field instead</label><button class="button secondary" type="submit">Test decision boundary →</button></form><div id="challenge-result" role="status" aria-live="polite"></div></details>`;
+}
+function bindChallenge() {
+  const form=$('#challenge-form');if(!form)return;
+  $('#challenge-remove').onchange=e=>{const input=$('#challenge-value');input.disabled=e.target.checked;input.required=!e.target.checked;};
+  form.onsubmit=e=>{e.preventDefault();const c=state.comparison;action(e.submitter,async()=>{
+    const r=await api(`/comparisons/${c.id}/challenge`,{method:'POST',body:{field:$('#challenge-field').value,value:$('#challenge-remove').checked?null:$('#challenge-value').value,version:c.version}});
+    if(state.view!=='workspace'||state.comparison?.id!==c.id||!$('#challenge-result'))return;
+    $('#challenge-result').innerHTML=`<div class="challenge-outcome"><div class="eyebrow">HYPOTHETICAL RESULT · NOT SAVED</div><h3>${E(r.actual.title)} → ${E(r.hypothetical.title)}</h3><p>${E(fieldNames[r.field])}: ${E(display(r.field,r.original_value))} → ${E(display(r.field,r.simulated_value))}</p><p>${E(r.hypothetical.reason)}</p><strong>Ledger unchanged · revision ${r.ledger_revision}</strong><p class="hint">${E(r.notice)}</p></div>`;
+  });};
+}
 function reviewHTML() {
   const c=state.comparison,r=c.result;
   const color=r.relation==='blocked'?'red':['review','conflict'].includes(r.relation)?'amber':'green';
-  const fields=['owner_id','account_id','institution','as_of','principal','maturity_value','currency'];
+  const fields=['owner_id','account_id','institution','as_of','principal','maturity_value','maturity_date','currency'];
   const questionHTML=c.question?`<form class="clarification" id="clarification-form"><div class="clarify-top"><span class="clarify-mark">?</span><div><div class="eyebrow">CLARIFICATION ${c.answers.length+1} OF AT MOST 2</div><h3>${E(c.question.label)}</h3><p>${E(c.question.reason)}</p></div></div><label class="form-label" for="answer-value">${c.question.type==='choice'?'Your reviewed choice':'Value from your source'}</label>${c.question.type==='choice'?`<select id="answer-value" required><option value="">Choose deliberately…</option><option value="keep_existing">Keep the existing observation</option><option value="use_incoming">Use the incoming observation</option></select>`:`<input id="answer-value" maxlength="100" placeholder="${E(c.question.placeholder)}" required autocomplete="off">`}<label class="form-label" for="answer-note">Where did you verify it?</label><input id="answer-note" placeholder="For example: original certificate, reference field" minlength="5" maxlength="500" required><div class="form-row"><span class="hint">Recorded as user-supplied evidence. You can leave this unresolved.</span><button class="button secondary" type="submit">Apply evidence & recheck →</button></div></form>`:'';
   const preview=state.preview;
   return `<section class="panel"><div class="review-heading"><div class="review-overline">EVIDENCE REVIEW / ${E(c.right.name.replace(/\.(pdf|txt)$/,''))}</div><span class="pill ${color}">${r.relation==='review'?'Evidence needed':r.relation==='blocked'?'Import quarantined':r.relation==='conflict'?'Conflicting evidence':'Supported proposal'}</span><h2>${E(r.title)}</h2><p>${E(r.reason)}</p></div><div class="review-body">
@@ -156,11 +168,13 @@ function reviewHTML() {
     ${r.relation==='review'&&!c.question?'<div class="block-warning">The two-question limit is reached. Keep this unresolved and supply a clearer source; no ledger change is permitted.</div>':''}
     ${r.relation==='blocked'?`<div class="block-warning">No document can instruct NestProof to change a record or send data elsewhere. This source has been quarantined. It remains available for inspection.</div>`:''}
     ${preview?`<div class="preview"><div class="eyebrow">PREVIEW · LEDGER REVISION ${preview.revision}</div><div class="preview-title">${E(preview.effect.title)}</div><div class="preview-grid"><div><small>REPRESENTED PRINCIPAL BEFORE</small><strong>${money(preview.effect.before)}</strong></div><span>→</span><div><small>AFTER THIS DECISION</small><strong>${money(preview.effect.after)}</strong></div></div><div class="preview-note">Change ${money(preview.effect.delta)} · Effective ${E(preview.effect.effective_date)}<br>${E(preview.effect.notice)}${preview.effect.user_supplied?'<br>Includes explicitly attributed user-supplied clarification.':''}</div><label class="confirmation-line"><input type="checkbox" id="confirm-evidence">I reviewed the source evidence and the proposed change.</label><button class="button primary wide" id="commit" disabled>Confirm & record decision →</button></div>`:''}
+    ${challengeHTML()}
     <div class="section-title"><h2>Follow the evidence</h2><span class="subtle">Original extracted text</span></div><div class="source-pair">${sourceHTML(c.left,'left')}${sourceHTML(c.right,'right')}</div><p class="source-caption">Page.line references point to extracted PDF text; this prototype does not perform OCR or certify document authenticity.</p>
     </div><div class="review-actions"><small>Nothing changes until you confirm.<br>Every committed decision has a history.</small>${c.can_preview?'<button class="button primary" id="preview">Preview ledger change →</button>':'<span class="pill amber">Ledger unchanged</span>'}</div></section>`;
 }
 function bindReview() {
   if(!state.comparison)return;
+  bindChallenge();
   document.querySelectorAll('[data-field]').forEach(b=>b.onclick=()=>{state.highlight=b.dataset.field;const scroll=window.scrollY;$('#review-panel').innerHTML=reviewHTML();bindReview();window.scrollTo(0,scroll);});
   if($('#clarification-form'))$('#clarification-form').onsubmit=e=>{e.preventDefault();action(e.submitter,async()=>{const c=state.comparison;const value=$('#answer-value').value,note=$('#answer-note').value;state.comparison=await api(`/comparisons/${c.id}/clarify`,{method:'POST',body:{value,note,version:c.version}});state.preview=null;renderWorkspace();notify('Evidence recorded with its source. Constraints have been checked again.');});};
   if($('#preview'))$('#preview').onclick=e=>action(e.currentTarget,async()=>{state.preview=await api(`/comparisons/${state.comparison.id}/preview`,{method:'POST'});renderWorkspace();$('.preview').scrollIntoView({behavior:'smooth',block:'center'});});
@@ -190,7 +204,7 @@ function renderAbout() {
   ].map(x=>`<div class="about-card"><span class="step">${x[0]}</span><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join('')}</div><div class="scope-note"><strong>Designed to be challenged</strong><p>Try two different holders with the same amount. Remove the deposit reference. Upload a maturity-only notice. Introduce instruction-like text. Switch demo personas and inspect private sources. A useful system must know when not to change the ledger.</p><strong>Honest scope</strong><p>English labeled digital FD documents, INR principal, synthetic demo personas. No OCR, investment advice, AA integration, production authentication or guarantee of complete wealth. Unknown formats should remain unresolved. Model scores are not probabilities of financial correctness.</p></div>`;
 }
 
-document.querySelectorAll('[data-view]').forEach(b=>b.onclick=async()=>{state.view=b.dataset.view;clearNotice();await action(b,async()=>{if(state.view==='history'){await refresh();}render();});});
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=async()=>{state.request++;state.view=b.dataset.view;clearNotice();await action(b,async()=>{if(state.view==='history'){await refresh();}render();});});
 $('#upload-open').onclick=()=>{$('#upload-error').textContent='';$('#upload-dialog').showModal();};
 $('#upload-close').onclick=()=>$('#upload-dialog').close();
 $('#file').onchange=()=>{$('#file-label').textContent=$('#file').files[0]?.name||'Choose a file or drop it here';};
